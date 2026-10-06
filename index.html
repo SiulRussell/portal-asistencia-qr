@@ -44,7 +44,6 @@
   .step-indicator{display:flex;justify-content:center;gap:8px;margin-bottom:20px}
   .step-dot{width:32px;height:4px;border-radius:2px;background:#1f2937;transition:background .3s}
   .step-dot.active{background:#a3ff12}
-  .estado-select{font-size:13px;font-weight:600;padding:6px 10px;border-radius:8px;background:#0f1115;border:1px solid #374151;color:#fff}
 </style>
 </head>
 <body>
@@ -167,7 +166,7 @@
 
 <script>
 // ============================================================
-// CONFIGURACIÓN
+// CONFIGURACIÓN - URL NUEVA
 // ============================================================
 var API_URL = 'https://script.google.com/macros/s/AKfycbxs9lJS5ooh78lksVGgx15QfblWOis5HwNgx1cT78JMwQxWTevqZss4EhTzAcCBtIVj/exec';
 
@@ -463,7 +462,6 @@ async function registrarAsistencia() {
   });
 
   try {
-    // 1. Subir foto
     notif('📤 Subiendo foto...');
     var resFoto = await fetch(API_URL, {
       method: 'POST',
@@ -477,7 +475,6 @@ async function registrarAsistencia() {
     var dataFoto = await resFoto.json();
     if (!dataFoto.success) throw new Error(dataFoto.message || 'Error al subir foto');
 
-    // 2. Guardar asistencia
     notif('📝 Guardando asistencia...');
     var resAsist = await fetch(API_URL, {
       method: 'POST',
@@ -499,7 +496,6 @@ async function registrarAsistencia() {
     var dataAsist = await resAsist.json();
     if (!dataAsist.success) throw new Error(dataAsist.message || 'Error al guardar asistencia');
 
-    // 3. Éxito
     notif('✅ Asistencia registrada', 'exito');
     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
     irAPasoConfirmacion(fechaTexto);
@@ -520,13 +516,11 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('🚀 Portal QR iniciado');
   console.log('📡 API:', API_URL);
 
-  // Verificar conexión con la API
   fetch(API_URL + '?action=ping')
     .then(function(r) { return r.json(); })
     .then(function(d) { console.log('✅ API OK:', d.message || 'activa'); })
     .catch(function(e) { console.error('❌ API no responde:', e); });
 
-  // Event listeners
   document.getElementById('btn-iniciar-escaner').addEventListener('click', iniciarEscaner);
   document.getElementById('btn-detener-escaner').addEventListener('click', function() { detenerEscaner(); });
   document.getElementById('btn-reintentar').addEventListener('click', iniciarEscaner);
@@ -550,7 +544,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-// Detener cámaras al salir
 window.addEventListener('beforeunload', function() {
   detenerCamaraFoto();
   if (qrScanner && escanerActivo) qrScanner.stop().catch(function() {});
