@@ -51,43 +51,35 @@
   .tutorial-dot.active{background:#a3ff12;width:24px;border-radius:4px}
 
   /* APP LAYOUT */
-  .app{display:flex;flex-direction:column;height:100vh;height:100dvh;padding:10px;gap:10px;padding-top:calc(10px + env(safe-area-inset-top));padding-bottom:calc(10px + env(safe-area-inset-bottom));opacity:0;transition:opacity .4s ease}
+  .app{display:flex;flex-direction:column;height:100vh;height:100dvh;padding:8px;gap:8px;padding-top:calc(8px + env(safe-area-inset-top));padding-bottom:calc(8px + env(safe-area-inset-bottom));opacity:0;transition:opacity .4s ease}
   .app.ready{opacity:1}
 
-  .header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#181a20;border:1px solid #1f2937;border-radius:14px;flex-shrink:0;transition:border-color .3s}
-  .header.active-glow{border-color:rgba(163,255,18,.4);box-shadow:0 0 24px rgba(163,255,18,.15)}
-  .header-logo{display:flex;align-items:center;gap:10px}
-  .header-logo-icon{width:36px;height:36px;border-radius:50%;background:#a3ff12;color:#000;font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(163,255,18,.35);transition:transform .3s}
-  .header h1{font-size:15px;font-weight:700;color:#fff;margin:0}
-  .header p{font-size:11px;color:#9ca3af;margin:0}
-
-  .backend-status{display:flex;align-items:center;gap:6px;font-size:10px;padding:4px 10px;border-radius:20px;background:#0f1115;border:1px solid #1f2937;transition:all .3s}
-  .backend-status .dot{width:8px;height:8px;border-radius:50%;background:#6b7280;transition:background .3s}
-  .backend-status.online .dot{background:#a3ff12;box-shadow:0 0 10px #a3ff12}
-  .backend-status.online{border-color:rgba(163,255,18,.3)}
-  .backend-status.offline .dot{background:#f87171}
-  .backend-status.offline{border-color:rgba(248,113,113,.3)}
-
-  .step-indicator{display:flex;gap:4px;align-items:center}
-  .step-dot{width:22px;height:4px;border-radius:2px;background:#1f2937;transition:all .4s cubic-bezier(.34,1.56,.64,1)}
-  .step-dot.active{background:#a3ff12;width:36px;box-shadow:0 0 12px rgba(163,255,18,.5)}
-  .step-dot.done{background:rgba(163,255,18,.4)}
-
-  .paso{flex:1;display:none;gap:10px;min-height:0}
+  .paso{flex:1;display:none;gap:8px;min-height:0}
   .paso.activo{display:flex;animation:slideIn .3s ease}
   @keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
 
-  .col-izq{flex:1.3;display:flex;flex-direction:column;gap:10px;min-width:0}
-  .col-der{flex:1;display:flex;flex-direction:column;gap:10px;min-width:0;position:relative}
+  .col-izq{flex:1.3;display:flex;flex-direction:column;gap:8px;min-width:0;min-height:0}
+  .col-der{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0;position:relative}
 
   .card{background:#181a20;border:1px solid #1f2937;border-radius:14px;padding:12px;transition:border-color .3s}
   .card-full{flex:1;display:flex;flex-direction:column;min-height:0}
 
-  /* Escáner */
-  .scanner-wrap{position:relative;flex:1;border-radius:12px;overflow:hidden;background:#000;min-height:0}
+  /* ============================================================
+     ESCÁNER QR - ocupa TODO el espacio, controles flotantes
+     ============================================================ */
+  .scanner-wrap{position:relative;flex:1;border-radius:14px;overflow:hidden;background:#000;min-height:0;border:1px solid #1f2937}
   #reader{width:100%;height:100%}
-  #reader video{border-radius:12px;object-fit:cover}
-  .scan-line{position:absolute;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#a3ff12,transparent);box-shadow:0 0 20px #a3ff12;animation:scanMove 2s ease-in-out infinite;pointer-events:none}
+  #reader video{object-fit:cover !important;width:100% !important;height:100% !important;border-radius:14px !important;display:block !important}
+
+  /* Ocultar overlays internos de html5-qrcode */
+  #reader__dashboard{display:none !important}
+  #reader__scan_region > *:not(video){display:none !important}
+  .qr-shaded-region,[class*="qr-shaded"],[class*="shaded-region"],
+  #reader__scan_region > div,#reader__scan_region img,#reader__scan_region svg{
+    display:none !important;border:none !important;box-shadow:none !important;background:transparent !important;
+  }
+
+  .scan-line{position:absolute;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#a3ff12,transparent);box-shadow:0 0 20px #a3ff12;animation:scanMove 2s ease-in-out infinite;pointer-events:none;z-index:2}
   @keyframes scanMove{0%{top:10%}50%{top:85%}100%{top:10%}}
   .scan-corners::before,.scan-corners::after,.scan-corners>.corner-b::before,.scan-corners>.corner-b::after{content:'';position:absolute;width:24px;height:24px;border-color:#a3ff12;border-style:solid;pointer-events:none;z-index:3}
   .scan-corners::before{top:12px;left:12px;border-width:3px 0 0 3px;border-radius:8px 0 0 0}
@@ -95,18 +87,84 @@
   .scan-corners>.corner-b::before{bottom:12px;left:12px;border-width:0 0 3px 3px;border-radius:0 0 0 8px}
   .scan-corners>.corner-b::after{bottom:12px;right:12px;border-width:0 3px 3px 0;border-radius:0 0 8px 0}
 
-  .camera-switcher{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:rgba(15,17,21,.85);backdrop-filter:blur(10px);border:1px solid rgba(163,255,18,.4);color:#a3ff12;font-weight:700;font-size:11px;padding:8px 14px;border-radius:20px;cursor:pointer;display:flex;align-items:center;gap:6px;z-index:5;transition:all .2s;box-shadow:0 4px 20px rgba(0,0,0,.5);white-space:nowrap;max-width:90%;overflow:hidden}
-  .camera-switcher:hover{background:rgba(163,255,18,.15);transform:translateX(-50%) scale(1.05)}
-  .camera-switcher:active{transform:translateX(-50%) scale(.95)}
-  .camera-switcher .icon{font-size:14px;display:inline-block;transition:transform .3s}
-  .camera-switcher.switching .icon{animation:rotateIcon .6s ease}
-  @keyframes rotateIcon{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
-  .camera-switcher .label{font-size:10px;opacity:.85;font-weight:500;max-width:120px;overflow:hidden;text-overflow:ellipsis}
+  /* Botones flotantes sobre la cámara */
+  .cam-float-btn{
+    position:absolute;
+    width:40px;height:40px;
+    border-radius:50%;
+    background:rgba(15,17,21,.75);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,.15);
+    color:#fff;
+    font-size:18px;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    z-index:6;
+    padding:0;
+    transition:transform .15s, background .15s;
+    box-shadow:0 4px 16px rgba(0,0,0,.5);
+  }
+  .cam-float-btn:active{transform:scale(.9)}
 
-  .camera-badge{position:absolute;top:12px;right:12px;background:rgba(15,17,21,.85);backdrop-filter:blur(10px);border:1px solid #1f2937;color:#9ca3af;font-size:10px;font-weight:600;padding:5px 10px;border-radius:12px;z-index:5;letter-spacing:.3px}
+  /* Detener: esquina inferior izquierda */
+  #btn-detener-escaner{
+    bottom:12px;left:12px;
+    color:#f87171;
+    border-color:rgba(248,113,113,.35);
+  }
+  #btn-detener-escaner:active{background:rgba(248,113,113,.25)}
+
+  /* Cambiar cámara: esquina superior derecha */
+  #btn-cambiar-camara{
+    top:12px;right:12px;
+    color:#a3ff12;
+    border-color:rgba(163,255,18,.35);
+  }
+  #btn-cambiar-camara:active{background:rgba(163,255,18,.25)}
+  #btn-cambiar-camara.switching .icon{animation:rotateIcon .6s ease}
+  @keyframes rotateIcon{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+
+  /* Indicador de pasos flotante (arriba centrado) */
+  .step-indicator-float{
+    position:absolute;
+    top:12px;left:50%;
+    transform:translateX(-50%);
+    display:flex;gap:4px;align-items:center;
+    z-index:6;
+    padding:6px 12px;
+    background:rgba(15,17,21,.75);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:20px;
+    box-shadow:0 4px 16px rgba(0,0,0,.5);
+  }
+  .step-dot{width:18px;height:3px;border-radius:2px;background:#374151;transition:all .4s cubic-bezier(.34,1.56,.64,1)}
+  .step-dot.active{background:#a3ff12;width:28px;box-shadow:0 0 10px rgba(163,255,18,.5)}
+  .step-dot.done{background:rgba(163,255,18,.5)}
+
+  /* Estado del backend flotante (esquina superior izquierda) */
+  .backend-float{
+    position:absolute;
+    top:12px;left:12px;
+    width:32px;height:32px;
+    border-radius:50%;
+    background:rgba(15,17,21,.75);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,.1);
+    display:flex;align-items:center;justify-content:center;
+    z-index:6;
+    box-shadow:0 4px 16px rgba(0,0,0,.5);
+  }
+  .backend-float .dot{width:10px;height:10px;border-radius:50%;background:#6b7280;transition:background .3s}
+  .backend-float.online .dot{background:#a3ff12;box-shadow:0 0 10px #a3ff12;animation:pulseDot 2s ease-in-out infinite}
+  .backend-float.offline .dot{background:#f87171}
+  @keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.5}}
 
   /* Cámara foto */
-  .camera-wrap{flex:1;position:relative;border-radius:14px;overflow:hidden;background:#000;border:2px solid #1f2937;min-height:0;transition:border-color .3s}
+  .camera-wrap{flex:1;position:relative;border-radius:14px;overflow:hidden;background:#000;border:1px solid #1f2937;min-height:0}
   #video{width:100%;height:100%;object-fit:cover;display:none;transform:scaleX(-1)}
   #video.active{display:block}
   #foto-preview{width:100%;height:100%;object-fit:cover;display:none;transform:scaleX(-1)}
@@ -120,7 +178,7 @@
 
   /* Botones */
   .btn{background:#a3ff12;color:#000;font-weight:700;padding:12px 16px;border-radius:12px;border:none;cursor:pointer;width:100%;font-size:14px;transition:all .15s;box-shadow:0 0 16px rgba(163,255,18,.2);position:relative;overflow:hidden}
-  .btn:hover:not(:disabled){background:#8be60f;transform:translateY(-1px)}
+  .btn:hover:not(:disabled){background:#8be60f}
   .btn:active:not(:disabled){transform:scale(.97)}
   .btn:disabled{opacity:.5;cursor:not-allowed}
   .btn2{background:#1f2937;color:#e5e7eb;font-weight:600;padding:12px 16px;border-radius:12px;border:1px solid #374151;cursor:pointer;width:100%;font-size:14px;transition:all .15s;position:relative;overflow:hidden}
@@ -147,7 +205,7 @@
   .confetti-piece{position:absolute;width:10px;height:10px;opacity:.9;animation:confettiFall 3s linear forwards}
   @keyframes confettiFall{0%{transform:translateY(-10vh) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
 
-  .progress-track{position:absolute;bottom:0;left:0;right:0;height:3px;background:#1f2937;overflow:hidden;border-radius:0 0 14px 14px}
+  .progress-track{position:absolute;bottom:0;left:0;right:0;height:3px;background:#1f2937;overflow:hidden;border-radius:0 0 14px 14px;z-index:4}
   .progress-bar{height:100%;background:#a3ff12;width:0;transition:width .3s ease;box-shadow:0 0 10px #a3ff12}
 
   @keyframes pulseGlow{0%,100%{box-shadow:0 0 16px rgba(163,255,18,.2)}50%{box-shadow:0 0 30px rgba(163,255,18,.5)}}
@@ -188,10 +246,6 @@
   /* MOBILE LANDSCAPE */
   @media (orientation: landscape) and (max-height: 500px) {
     .app{padding:6px;gap:6px;padding-top:calc(6px + env(safe-area-inset-top))}
-    .header{padding:6px 12px;border-radius:12px}
-    .header-logo-icon{width:30px;height:30px;font-size:13px}
-    .header h1{font-size:13px}
-    .header p{display:none}
     .card{padding:8px;border-radius:12px}
     .btn, .btn2{padding:10px 14px;font-size:13px;border-radius:10px}
     .avatar{width:36px;height:36px;font-size:12px}
@@ -205,8 +259,14 @@
     .teclado-grid{gap:4px}
     .teclado-acciones{gap:4px}
     .teclado-acciones .btn2{padding:8px 6px;font-size:11px}
-    .camera-switcher{padding:6px 10px;font-size:10px;top:8px}
-    .camera-badge{padding:4px 8px;font-size:9px;top:8px;right:8px}
+    .cam-float-btn{width:36px;height:36px;font-size:16px}
+    #btn-detener-escaner{bottom:10px;left:10px}
+    #btn-cambiar-camara{top:10px;right:10px}
+    .step-indicator-float{top:10px;padding:5px 10px}
+    .step-dot{width:14px}
+    .step-dot.active{width:22px}
+    .backend-float{top:10px;left:10px;width:28px;height:28px}
+    .backend-float .dot{width:8px;height:8px}
   }
 
   @media (orientation: landscape) and (min-width: 900px) {
@@ -245,34 +305,13 @@
 
 <div class="app" id="app">
 
-  <div class="header" id="header">
-    <div class="header-logo">
-      <div class="header-logo-icon" id="logoIcon">QR</div>
-      <div>
-        <h1 id="headerTitle">Registro de Asistencia</h1>
-        <p id="headerSub">Escanea el código QR del estudiante</p>
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;gap:10px">
-      <div class="backend-status" id="backendStatus">
-        <span class="dot"></span>
-        <span id="backendText">Conectando</span>
-      </div>
-      <div class="step-indicator">
-        <div id="dot1" class="step-dot active"></div>
-        <div id="dot2" class="step-dot"></div>
-        <div id="dot3" class="step-dot"></div>
-      </div>
-    </div>
-  </div>
-
   <!-- PASO 1 -->
   <section id="paso-escanear" class="paso activo">
     <div class="col-izq">
-      <div class="card card-full" style="position:relative">
+      <div class="card-full" style="position:relative">
         <div class="progress-track"><div class="progress-bar" id="progress1"></div></div>
 
-        <div id="placeholder" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px">
+        <div id="placeholder" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px;background:#181a20;border:1px solid #1f2937;border-radius:14px">
           <div style="font-size:56px;margin-bottom:8px;animation:bounceIcon 1.5s ease-in-out infinite">📱</div>
           <p style="color:#9ca3af;font-size:13px;margin:0 0 18px">Activa la cámara para escanear el QR</p>
           <button id="btn-iniciar-escaner" class="btn btn-pulse" style="max-width:280px;margin:0 auto">🎥 Activar Escáner</button>
@@ -284,17 +323,29 @@
             <div class="scan-line"></div>
             <div class="corner-b"></div>
 
-            <button id="btn-cambiar-camara" class="camera-switcher hidden">
+            <!-- Indicador de pasos flotante -->
+            <div class="step-indicator-float">
+              <div id="dot1" class="step-dot active"></div>
+              <div id="dot2" class="step-dot"></div>
+              <div id="dot3" class="step-dot"></div>
+            </div>
+
+            <!-- Estado backend flotante -->
+            <div class="backend-float" id="backendStatus">
+              <span class="dot"></span>
+            </div>
+
+            <!-- Cambiar cámara (flotante, esquina superior derecha) -->
+            <button id="btn-cambiar-camara" class="cam-float-btn hidden">
               <span class="icon">🔄</span>
-              <span class="label">Cambiar cámara</span>
             </button>
 
-            <div id="camera-badge" class="camera-badge hidden">Trasera</div>
+            <!-- Detener (flotante, esquina inferior izquierda) -->
+            <button id="btn-detener-escaner" class="cam-float-btn">⏹</button>
           </div>
-          <button id="btn-detener-escaner" class="btn2 btn-sm" style="margin-top:8px">⏹️ Detener</button>
         </div>
 
-        <div id="error-camara" style="display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px">
+        <div id="error-camara" style="display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px;background:#181a20;border:1px solid #1f2937;border-radius:14px">
           <div style="font-size:40px;margin-bottom:8px">⚠️</div>
           <p id="error-camara-msg" style="color:#f87171;font-size:12px;margin:0 0 12px"></p>
           <button id="btn-reintentar" class="btn2 btn-sm" style="max-width:200px">🔄 Reintentar</button>
@@ -364,7 +415,7 @@
   <!-- PASO 2 -->
   <section id="paso-foto" class="paso">
     <div class="col-izq">
-      <div class="card card-full" style="position:relative">
+      <div class="card-full" style="position:relative">
         <div class="progress-track"><div class="progress-bar" id="progress2"></div></div>
 
         <div class="camera-wrap" id="camera-container">
@@ -373,6 +424,14 @@
           <img id="foto-preview" alt="Vista previa">
           <div class="flash" id="flash"></div>
           <div id="countdown" class="countdown hidden"><span class="countdown-num"></span></div>
+
+          <!-- Indicador de pasos flotante -->
+          <div class="step-indicator-float">
+            <div id="dot1b" class="step-dot done"></div>
+            <div id="dot2b" class="step-dot active"></div>
+            <div id="dot3b" class="step-dot"></div>
+          </div>
+
           <div id="foto-placeholder" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000">
             <div style="font-size:52px;margin-bottom:10px;animation:bounceIcon 1.5s ease-in-out infinite">📸</div>
             <p style="color:#9ca3af;font-size:12px;margin:0 0 14px">Activa la cámara frontal para la selfie</p>
@@ -383,8 +442,10 @@
             <p id="camara-error-msg" style="color:#f87171;font-size:12px;margin:0 0 12px"></p>
             <button id="btn-reintentar-camara" class="btn2 btn-sm" style="max-width:180px">🔄 Reintentar</button>
           </div>
+
+          <!-- Botón capturar flotante (sobre la cámara) -->
+          <button id="btn-capturar" class="btn hidden" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);width:auto;padding:11px 20px;font-size:12px;z-index:5;box-shadow:0 6px 20px rgba(0,0,0,.5)">📸 Capturar</button>
         </div>
-        <button id="btn-capturar" class="btn hidden" style="margin-top:8px">📸 Tomar Foto (con cuenta regresiva)</button>
       </div>
     </div>
     <div class="col-der">
@@ -411,7 +472,7 @@
   <!-- PASO 3 -->
   <section id="paso-confirmacion" class="paso">
     <div class="col-izq">
-      <div class="card card-full" style="display:flex;align-items:center;justify-content:center;position:relative">
+      <div class="card-full" style="display:flex;align-items:center;justify-content:center;position:relative">
         <div class="progress-track"><div class="progress-bar" style="width:100%"></div></div>
         <div style="text-align:center">
           <div id="check-container" style="width:120px;height:120px;border-radius:50%;background:rgba(163,255,18,.15);border:3px solid rgba(163,255,18,.4);display:flex;align-items:center;justify-content:center;font-size:60px;margin:0 auto;animation:successPop .6s cubic-bezier(.34,1.56,.64,1)">✅</div>
@@ -456,32 +517,23 @@ var CACHE_TTL = 3 * 60 * 1000;
 var PREFERRED_CAMERA_KEY = 'portal_camera_pref';
 
 // ============================================================
-// SERVICE WORKER (con auto-update)
+// SERVICE WORKER
 // ============================================================
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('./sw.js').then(function(reg) {
       console.log('✅ Service Worker registrado');
-
-      // Buscar actualizaciones cada 30 segundos
       setInterval(function() { reg.update().catch(function() {}); }, 30000);
-
-      // Detectar nueva versión
       reg.addEventListener('updatefound', function() {
         var newWorker = reg.installing;
-        console.log('🔄 Buscando nueva versión...');
         newWorker.addEventListener('statechange', function() {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            console.log('🆕 Nueva versión lista');
             mostrarAvisoActualizacion();
           }
         });
       });
-    }).catch(function(err) {
-      console.log('SW:', err.message);
-    });
+    }).catch(function(err) { console.log('SW:', err.message); });
 
-    // Detectar cambio de controlador → recargar
     var refreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', function() {
       if (refreshing) return;
@@ -496,7 +548,6 @@ function mostrarAvisoActualizacion() {
   n.innerHTML = '<span>🆕</span><span>Nueva versión disponible</span><button onclick="actualizarApp()" style="background:#a3ff12;color:#000;border:none;padding:6px 12px;border-radius:8px;font-weight:700;margin-left:8px;cursor:pointer;font-size:12px">Actualizar</button>';
   n.className = 'visible exito';
   clearTimeout(n._t);
-  // Mantener visible hasta que el usuario actúe
 }
 
 function actualizarApp() {
@@ -555,7 +606,6 @@ function sonidoTecla() { beep(1400, 35); }
 function sonidoTeclaDel() { beep(600, 50); }
 function sonidoTeclaOk() { beep(880, 70); setTimeout(function() { beep(1200, 90); }, 70); }
 function sonidoCambioCamara() { beep(700, 60); setTimeout(function() { beep(1000, 80); }, 60); }
-
 function vib(pattern) { if (navigator.vibrate) navigator.vibrate(pattern); }
 
 // ============================================================
@@ -574,8 +624,8 @@ function notif(msg, tipo) {
 
 function setBackendStatus(status, text) {
   var el = document.getElementById('backendStatus');
-  el.className = 'backend-status ' + status;
-  document.getElementById('backendText').textContent = text;
+  el.className = 'backend-float ' + status;
+  // No mostramos texto, solo el dot
 }
 
 // ============================================================
@@ -591,15 +641,23 @@ function formatearFecha(d) {
   return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
 }
 function cambiarPaso(n) {
+  // Actualiza los 2 sets de dots (paso 1 y paso 2 tienen dots flotantes)
   ['dot1', 'dot2', 'dot3'].forEach(function(id, i) {
     var el = document.getElementById(id);
-    el.classList.remove('active', 'done');
-    if (i === n - 1) el.classList.add('active');
-    else if (i < n - 1) el.classList.add('done');
+    if (el) {
+      el.classList.remove('active', 'done');
+      if (i === n - 1) el.classList.add('active');
+      else if (i < n - 1) el.classList.add('done');
+    }
   });
-  var header = document.getElementById('header');
-  header.classList.add('active-glow');
-  setTimeout(function() { header.classList.remove('active-glow'); }, 700);
+  ['dot1b', 'dot2b', 'dot3b'].forEach(function(id, i) {
+    var el = document.getElementById(id);
+    if (el) {
+      el.classList.remove('active', 'done');
+      if (i === n - 1) el.classList.add('active');
+      else if (i < n - 1) el.classList.add('done');
+    }
+  });
 }
 
 // ============================================================
@@ -766,16 +824,12 @@ async function iniciarEscaner() {
   if (camarasDisponibles.length === 0) await detectarCamaras();
 
   var switchBtn = document.getElementById('btn-cambiar-camara');
-  var badge = document.getElementById('camera-badge');
   if (camarasDisponibles.length > 1) {
     switchBtn.classList.remove('hidden');
-    badge.classList.remove('hidden');
   } else {
     switchBtn.classList.add('hidden');
-    badge.classList.add('hidden');
   }
 
-  actualizarBadgeCamara();
   await iniciarCamaraQR();
 }
 
@@ -827,20 +881,6 @@ async function iniciarCamaraQR() {
   }
 }
 
-function actualizarBadgeCamara() {
-  var badge = document.getElementById('camera-badge');
-  var cam = camarasDisponibles[camaraIndexActual];
-  if (!cam) { badge.textContent = 'Automática'; return; }
-  var label = (cam.label || '').toLowerCase();
-  if (label.includes('front') || label.includes('user') || label.includes('frontal')) {
-    badge.textContent = '👤 Frontal';
-  } else if (label.includes('back') || label.includes('rear') || label.includes('environment') || label.includes('trasera')) {
-    badge.textContent = '📷 Trasera';
-  } else {
-    badge.textContent = '📷 Cam ' + (camaraIndexActual + 1);
-  }
-}
-
 async function cambiarCamara() {
   if (cambiandoCamara || camarasDisponibles.length < 2) return;
   cambiandoCamara = true;
@@ -852,7 +892,6 @@ async function cambiarCamara() {
 
   camaraIndexActual = (camaraIndexActual + 1) % camarasDisponibles.length;
   localStorage.setItem(PREFERRED_CAMERA_KEY, camarasDisponibles[camaraIndexActual].deviceId);
-  actualizarBadgeCamara();
 
   await iniciarCamaraQR();
 
@@ -872,7 +911,6 @@ async function detenerEscaner(mantener) {
     document.getElementById('placeholder').classList.remove('hidden');
     document.getElementById('progress1').style.width = '0%';
     document.getElementById('btn-cambiar-camara').classList.add('hidden');
-    document.getElementById('camera-badge').classList.add('hidden');
   }
 }
 
@@ -947,8 +985,6 @@ function irAPasoEscanear() {
   detenerCamaraFoto(); detenerEscaner();
   cerrarTeclado();
   cambiarPaso(1);
-  document.getElementById('headerTitle').textContent = 'Registro de Asistencia';
-  document.getElementById('headerSub').textContent = 'Escanea el código QR del estudiante';
   precargarEstudiantes();
 }
 
@@ -971,8 +1007,6 @@ function irAPasoFoto() {
   document.getElementById('progress2').style.width = '20%';
   fotoBase64 = null;
   cambiarPaso(2);
-  document.getElementById('headerTitle').textContent = 'Captura de Foto';
-  document.getElementById('headerSub').textContent = 'Toma una selfie del estudiante';
 
   setTimeout(function() {
     var av = document.getElementById('iniciales');
@@ -990,8 +1024,6 @@ function irAPasoConfirmacion(fechaTexto) {
   document.getElementById('conf-pnf').textContent = estudianteActual.pnf || '--';
   document.getElementById('conf-fecha').textContent = fechaTexto;
   cambiarPaso(3);
-  document.getElementById('headerTitle').textContent = '¡Completado!';
-  document.getElementById('headerSub').textContent = 'Asistencia registrada exitosamente';
   lanzarConfetti();
 }
 
