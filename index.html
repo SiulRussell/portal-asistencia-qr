@@ -2,550 +2,420 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Portal de Asistencia QR</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal Asistencia QR</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-
 <style>
-    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0; background-color: #0f1115; color: #e5e7eb; min-height: 100vh; }
-    .neon-green { color: #a3ff12; }
-    .bg-neon-green { background-color: #a3ff12; }
-    .fade-in { animation: fadeIn 0.4s ease-in-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-    #reader { width: 100%; max-width: 480px; margin: 0 auto; border-radius: 16px; overflow: hidden; border: 2px solid #1f2937; background: #000; }
-    #reader video { border-radius: 16px; }
-    .btn-primary { background-color: #a3ff12; color: #0f1115; font-weight: 700; padding: 15px 24px; border-radius: 14px; border: none; cursor: pointer; transition: all 0.2s; width: 100%; font-size: 1rem; box-shadow: 0 0 20px rgba(163, 255, 18, 0.25); }
-    .btn-primary:hover { background-color: #8be60f; transform: translateY(-2px); }
-    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-    .btn-secondary { background-color: #1f2937; color: #e5e7eb; font-weight: 600; padding: 15px 24px; border-radius: 14px; border: 1px solid #374151; cursor: pointer; transition: all 0.2s; width: 100%; font-size: 1rem; }
-    .btn-secondary:hover { background-color: #374151; }
-    .camera-view { position: relative; width: 100%; max-width: 400px; margin: 0 auto; aspect-ratio: 3/4; background-color: #000; border-radius: 20px; overflow: hidden; border: 2px solid #1f2937; }
-    .camera-view video, .camera-view img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .camera-view video { display: none; }
-    .camera-view video.active { display: block; }
-    .camera-view canvas { display: none; }
-    #notificacion { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 14px 28px; border-radius: 12px; background-color: #181a20; border: 1px solid #1f2937; color: #e5e7eb; font-size: 0.95rem; box-shadow: 0 8px 32px rgba(0,0,0,0.6); opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 2000; max-width: 90%; text-align: center; }
-    #notificacion.visible { opacity: 1; }
-    #notificacion.exito { border-color: #a3ff12; }
-    #notificacion.error { border-color: #f87171; }
-    .loader { border: 3px solid #374151; border-top: 3px solid #a3ff12; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .modal-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; backdrop-filter: blur(8px); }
-    .modal-overlay.active { display: flex; }
-    .modal-content { background-color: #181a20; border: 1px solid #1f2937; border-radius: 20px; padding: 28px; width: 100%; max-width: 420px; animation: slideIn 0.3s ease; }
-    @keyframes slideIn { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+body{font-family:sans-serif;background:#0f1115;color:#e5e7eb;margin:0;padding:16px;min-height:100vh}
+.neon{color:#a3ff12}.bg-neon{background:#a3ff12}
+.btn{background:#a3ff12;color:#000;font-weight:700;padding:14px 20px;border-radius:12px;border:none;cursor:pointer;width:100%;font-size:16px;margin-top:8px}
+.btn:hover{background:#8be60f}
+.btn2{background:#1f2937;color:#e5e7eb;font-weight:600;padding:14px 20px;border-radius:12px;border:1px solid #374151;cursor:pointer;width:100%;font-size:16px;margin-top:8px}
+.card{background:#181a20;border:1px solid #1f2937;border-radius:16px;padding:20px;margin-bottom:16px}
+.hidden{display:none}
+#reader{width:100%;max-width:480px;margin:0 auto;border-radius:16px;overflow:hidden;border:2px solid #1f2937}
+#video{width:100%;max-width:400px;margin:0 auto;display:none;border-radius:20px;border:2px solid #1f2937}
+#video.active{display:block}
+#foto-preview{width:100%;max-width:400px;margin:0 auto;display:none;border-radius:20px;border:2px solid #1f2937}
+input{background:#0f1115;border:1px solid #374151;border-radius:12px;padding:12px;color:#fff;width:100%;box-sizing:border-box}
+input:focus{outline:none;border-color:#a3ff12}
+#notif{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:12px;background:#181a20;border:1px solid #1f2937;opacity:0;transition:opacity .3s;z-index:9999;text-align:center}
+#notif.visible{opacity:1}
+#notif.exito{border-color:#a3ff12}
+#notif.error{border-color:#f87171}
+.center{text-align:center}
 </style>
 </head>
 <body>
 
-<div id="notificacion"></div>
+<div id="notif"></div>
 
-<div class="min-h-screen p-4 md:p-8">
-
-    <header class="text-center mb-6">
-        <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-neon-green mb-3 shadow-[0_0_25px_rgba(163,255,18,0.5)]">
-            <span class="text-black font-bold text-2xl">QR</span>
-        </div>
-        <h1 class="text-2xl md:text-3xl font-bold text-white mb-1">Registro de Asistencia</h1>
-        <p class="text-sm text-gray-400">Escanea el código QR del estudiante</p>
-    </header>
-
-    <!-- PASO 1: ESCANEO -->
-    <section id="paso-escanear" class="fade-in max-w-lg mx-auto">
-        <div class="bg-[#181a20] rounded-2xl border border-gray-800 p-5 mb-5">
-            <h3 class="text-white font-semibold mb-3">📷 Escáner QR</h3>
-            <div id="scanner-placeholder" class="text-center py-8">
-                <div class="text-6xl mb-4">📱</div>
-                <p class="text-gray-400 text-sm mb-5 px-4">Presiona el botón para activar la cámara y escanear el código QR del estudiante.</p>
-                <button onclick="iniciarEscaner()" class="btn-primary max-w-xs mx-auto">🎥 Activar Escáner</button>
-            </div>
-            <div id="scanner-container" class="hidden">
-                <div id="reader"></div>
-                <button onclick="detenerEscaner()" class="btn-secondary mt-3 text-sm py-2">⏹️ Detener Escáner</button>
-            </div>
-            <div id="error-camara" class="hidden text-center py-4">
-                <p class="text-red-400 text-sm mb-2" id="error-camara-mensaje"></p>
-                <button onclick="iniciarEscaner()" class="btn-secondary text-sm py-2">🔄 Intentar de nuevo</button>
-            </div>
-        </div>
-
-        <div class="bg-[#181a20] rounded-2xl border border-gray-800 p-5">
-            <h3 class="text-white font-semibold mb-1 text-sm">⌨️ Ingreso Manual</h3>
-            <p class="text-xs text-gray-500 mb-3">Si el QR no funciona, ingresa la cédula del estudiante.</p>
-            <div class="flex gap-2">
-                <input type="text" id="input-ci-manual" placeholder="Ej. 12345678" inputmode="numeric"
-                       class="flex-1 bg-[#0f1115] border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-green transition text-sm">
-                <button onclick="procesarCI(document.getElementById('input-ci-manual').value)"
-                        class="bg-neon-green hover:bg-[#8be60f] text-black font-bold py-3 px-5 rounded-xl transition text-sm whitespace-nowrap">
-                    Buscar
-                </button>
-            </div>
-        </div>
-    </section>
-
-    <!-- PASO 2: FOTO -->
-    <section id="paso-foto" class="hidden fade-in max-w-lg mx-auto">
-        <div class="bg-[#181a20] rounded-2xl border border-gray-800 p-5 mb-5">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-full bg-neon-green/20 flex items-center justify-center border border-neon-green/30">
-                    <span class="text-neon-green font-bold text-lg" id="iniciales-estudiante">--</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-white font-semibold text-base truncate" id="nombre-estudiante">Cargando...</p>
-                    <p class="text-xs text-gray-400">C.I: <span id="ci-estudiante">--</span> · <span id="pnf-estudiante">--</span></p>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-[#181a20] rounded-2xl border border-gray-800 p-5 mb-5">
-            <h3 class="text-white font-semibold mb-3">📸 Captura de Foto</h3>
-            <div class="camera-view" id="camera-container">
-                <video id="video" autoplay playsinline muted></video>
-                <canvas id="canvas"></canvas>
-                <img id="foto-preview" class="hidden" alt="Vista previa">
-            </div>
-            <div id="foto-placeholder" class="text-center py-4 mt-4">
-                <button onclick="iniciarCamara()" class="btn-primary max-w-xs mx-auto">📷 Encender Cámara</button>
-            </div>
-            <div class="mt-4 space-y-3">
-                <button id="btn-capturar" onclick="capturarFoto()" class="btn-primary hidden">📸 Tomar Foto</button>
-                <div id="controles-post-captura" class="hidden space-y-3">
-                    <button onclick="reiniciarCamara()" class="btn-secondary">🔄 Repetir Foto</button>
-                    <button id="btn-registrar" onclick="registrarAsistencia()" class="btn-primary">✅ Registrar Asistencia</button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- PASO 3: CONFIRMACIÓN -->
-    <section id="paso-confirmacion" class="hidden fade-in max-w-lg mx-auto">
-        <div class="bg-[#181a20] rounded-2xl border border-gray-800 p-8 text-center">
-            <div class="w-20 h-20 rounded-full bg-neon-green/20 flex items-center justify-center mx-auto mb-5 border-2 border-neon-green/40">
-                <span class="text-4xl">✅</span>
-            </div>
-            <h2 class="text-2xl font-bold text-white mb-2">¡Asistencia Registrada!</h2>
-            <p class="text-gray-400 text-sm mb-6">Los datos han sido guardados correctamente.</p>
-            <div class="bg-[#0f1115] rounded-xl p-4 text-left mb-6 space-y-2">
-                <p class="text-sm text-gray-400"><span class="text-neon-green font-semibold">Estudiante:</span> <span id="confirm-nombre" class="text-white">--</span></p>
-                <p class="text-sm text-gray-400"><span class="text-neon-green font-semibold">C.I:</span> <span id="confirm-ci" class="text-white">--</span></p>
-                <p class="text-sm text-gray-400"><span class="text-neon-green font-semibold">PNF:</span> <span id="confirm-pnf" class="text-white">--</span></p>
-                <p class="text-sm text-gray-400"><span class="text-neon-green font-semibold">Fecha y Hora:</span> <span id="confirm-fecha" class="text-white">--</span></p>
-            </div>
-            <button onclick="reiniciarFlujo()" class="btn-primary">🔄 Escanear otro estudiante</button>
-        </div>
-    </section>
-
+<div class="center" style="margin-bottom:20px">
+  <div style="display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;background:#a3ff12;color:#000;font-weight:bold;font-size:20px">QR</div>
+  <h1 style="font-size:24px;color:#fff;margin:8px 0">Registro de Asistencia</h1>
+  <p style="color:#9ca3af;font-size:14px;margin:0">Escanea el código QR del estudiante</p>
 </div>
 
-<div id="modal-error" class="modal-overlay">
-    <div class="modal-content text-center">
-        <div class="text-5xl mb-4">⚠️</div>
-        <h3 class="text-xl font-bold text-white mb-2">Estudiante no encontrado</h3>
-        <p class="text-gray-400 text-sm mb-6" id="error-mensaje">No se encontró ningún estudiante con esa C.I.</p>
-        <button onclick="cerrarModalError()" class="btn-primary">Entendido</button>
+<div id="paso-escanear" style="max-width:600px;margin:0 auto">
+  <div class="card">
+    <h3 style="color:#fff;margin-top:0">📷 Escáner QR</h3>
+    <div id="placeholder" class="center" style="padding:20px 0">
+      <div style="font-size:60px">📱</div>
+      <p style="color:#9ca3af;font-size:14px">Presiona para activar la cámara</p>
+      <button id="btn-iniciar-escaner" class="btn">🎥 Activar Escáner</button>
     </div>
+    <div id="scanner-container" class="hidden">
+      <div id="reader"></div>
+      <button id="btn-detener-escaner" class="btn2">⏹️ Detener</button>
+    </div>
+    <div id="error-camara" class="hidden center" style="padding:16px 0">
+      <p id="error-camara-msg" style="color:#f87171;font-size:14px"></p>
+      <button id="btn-reintentar" class="btn2">🔄 Reintentar</button>
+    </div>
+  </div>
+  <div class="card">
+    <h3 style="color:#fff;margin-top:0;font-size:14px">⌨️ Ingreso Manual</h3>
+    <p style="color:#6b7280;font-size:12px">Ingresa la cédula del estudiante</p>
+    <div style="display:flex;gap:8px">
+      <input type="text" id="input-ci" placeholder="Ej. 12345678" inputmode="numeric">
+      <button id="btn-buscar" class="btn" style="width:auto;margin-top:0;white-space:nowrap">Buscar</button>
+    </div>
+  </div>
+</div>
+
+<div id="paso-foto" class="hidden" style="max-width:600px;margin:0 auto">
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:48px;height:48px;border-radius:50%;background:rgba(163,255,18,.15);border:1px solid rgba(163,255,18,.3);display:flex;align-items:center;justify-content:center;color:#a3ff12;font-weight:bold" id="iniciales">--</div>
+      <div>
+        <p style="color:#fff;font-weight:600;margin:0" id="nombre-est">Cargando...</p>
+        <p style="color:#9ca3af;font-size:12px;margin:4px 0 0">C.I: <span id="ci-est">--</span> · <span id="pnf-est">--</span></p>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h3 style="color:#fff;margin-top:0">📸 Captura de Foto</h3>
+    <div id="camera-container" class="center">
+      <video id="video" autoplay playsinline muted></video>
+      <canvas id="canvas" style="display:none"></canvas>
+      <img id="foto-preview" alt="Preview">
+    </div>
+    <div id="foto-placeholder" class="center" style="padding:16px 0">
+      <button id="btn-encender-camara" class="btn">📷 Encender Cámara</button>
+    </div>
+    <button id="btn-capturar" class="btn hidden">📸 Tomar Foto</button>
+    <div id="controles-post" class="hidden">
+      <button id="btn-repetir" class="btn2">🔄 Repetir Foto</button>
+      <button id="btn-registrar" class="btn">✅ Registrar Asistencia</button>
+    </div>
+  </div>
+</div>
+
+<div id="paso-confirmacion" class="hidden" style="max-width:600px;margin:0 auto">
+  <div class="card center">
+    <div style="width:80px;height:80px;border-radius:50%;background:rgba(163,255,18,.15);border:2px solid rgba(163,255,18,.4);display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:36px">✅</div>
+    <h2 style="color:#fff;margin:16px 0 8px">¡Asistencia Registrada!</h2>
+    <p style="color:#9ca3af;font-size:14px;margin-bottom:20px">Los datos han sido guardados.</p>
+    <div style="background:#0f1115;border-radius:12px;padding:16px;text-align:left;margin-bottom:20px">
+      <p style="color:#9ca3af;font-size:13px;margin:6px 0">Estudiante: <span style="color:#fff" id="conf-nombre">--</span></p>
+      <p style="color:#9ca3af;font-size:13px;margin:6px 0">C.I: <span style="color:#fff" id="conf-ci">--</span></p>
+      <p style="color:#9ca3af;font-size:13px;margin:6px 0">PNF: <span style="color:#fff" id="conf-pnf">--</span></p>
+      <p style="color:#9ca3af;font-size:13px;margin:6px 0">Fecha: <span style="color:#fff" id="conf-fecha">--</span></p>
+    </div>
+    <button id="btn-reiniciar" class="btn">🔄 Escanear otro</button>
+  </div>
 </div>
 
 <script>
-// ============================================================
-// CONFIGURACIÓN
-// ============================================================
-const CONFIG = {
-    scriptUrl: 'https://script.google.com/macros/s/AKfycbxCL6N_g58t6SzamCFzRz0XGrKdOtxntRfHsEtR9DLTSRFZL_QBSXTHgzySbHzePIam/exec'
-};
+var API_URL = 'https://script.google.com/macros/s/AKfycbxCL6N_g58t6SzamCFzRz0XGrKdOtxntRfHsEtR9DLTSRFZL_QBSXTHgzySbHzePIam/exec';
+var html5QrCode = null;
+var stream = null;
+var fotoBase64 = null;
+var estudiante = null;
+var escaneando = false;
+var escanerActivo = false;
 
-// ============================================================
-// ESTADO GLOBAL
-// ============================================================
-let html5QrCode = null;
-let streamActual = null;
-let fotoCapturadaBase64 = null;
-let estudianteActual = null;
-let escaneando = false;
-let escanerActivo = false;
+function notif(msg, tipo) {
+  var n = document.getElementById('notif');
+  n.textContent = msg;
+  n.className = 'visible' + (tipo ? ' ' + tipo : '');
+  clearTimeout(n._t);
+  n._t = setTimeout(function() { n.className = ''; }, 4000);
+}
 
-// ============================================================
-// ESCÁNER QR
-// ============================================================
+function mostrarErrorCamara(msg) {
+  document.getElementById('scanner-container').classList.add('hidden');
+  document.getElementById('placeholder').classList.add('hidden');
+  document.getElementById('error-camara').classList.remove('hidden');
+  document.getElementById('error-camara-msg').textContent = msg;
+}
+
 async function iniciarEscaner() {
-    document.getElementById('scanner-placeholder').classList.add('hidden');
-    document.getElementById('error-camara').classList.add('hidden');
+  document.getElementById('placeholder').classList.add('hidden');
+  document.getElementById('error-camara').classList.add('hidden');
 
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        mostrarErrorCamara('Tu navegador no soporta acceso a la cámara. Usa el ingreso manual.');
-        return;
-    }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    mostrarErrorCamara('Navegador no soporta cámara.');
+    return;
+  }
 
-    const container = document.getElementById('scanner-container');
-    container.classList.remove('hidden');
+  document.getElementById('scanner-container').classList.remove('hidden');
 
-    try {
-        html5QrCode = new Html5Qrcode("reader");
-        const config = { fps: 10, qrbox: { width: 240, height: 240 }, aspectRatio: 1.0 };
-
-        await html5QrCode.start(
-            { facingMode: "environment" },
-            config,
-            (decodedText) => {
-                if (escaneando) return;
-                escaneando = true;
-                console.log('QR escaneado:', decodedText);
-                if (navigator.vibrate) navigator.vibrate(100);
-                detenerEscaner(true).then(() => procesarCI(decodedText));
-            },
-            () => {}
-        );
-
-        escanerActivo = true;
-        console.log('✅ Escáner QR iniciado');
-
-    } catch (error) {
-        console.error('Error al iniciar escáner:', error);
-        escanerActivo = false;
-        let msg = 'No se pudo acceder a la cámara. ';
-        if (error.name === 'NotAllowedError' || error.toString().includes('Permission')) {
-            msg += 'Permiso denegado. Asegúrate de usar HTTPS (GitHub Pages lo hace).';
-        } else if (error.name === 'NotFoundError') {
-            msg += 'No se encontró ninguna cámara en el dispositivo.';
-        } else if (error.name === 'NotReadableError') {
-            msg += 'La cámara está siendo usada por otra aplicación.';
-        } else {
-            msg += 'Detalle: ' + error.toString();
-        }
-        mostrarErrorCamara(msg);
-    }
-}
-
-async function detenerEscaner(mantenerContenedor = false) {
-    if (html5QrCode && escanerActivo) {
-        try {
-            await html5QrCode.stop();
-            await html5QrCode.clear();
-        } catch (e) { console.warn(e); }
-        html5QrCode = null;
-        escanerActivo = false;
-    }
-    if (!mantenerContenedor) {
-        document.getElementById('scanner-container').classList.add('hidden');
-        document.getElementById('scanner-placeholder').classList.remove('hidden');
-    }
-}
-
-function mostrarErrorCamara(mensaje) {
-    document.getElementById('scanner-container').classList.add('hidden');
-    document.getElementById('scanner-placeholder').classList.add('hidden');
-    document.getElementById('error-camara').classList.remove('hidden');
-    document.getElementById('error-camara-mensaje').textContent = mensaje;
-}
-
-async function procesarCI(textoQR) {
-    if (!textoQR) return;
-    const ci = String(textoQR).replace(/\D/g, '');
-    if (!ci || ci.length < 4) {
-        mostrarNotificacion('⚠️ Código inválido. Intenta de nuevo.', 'error');
-        escaneando = false;
-        return;
-    }
-
-    console.log('🔍 Buscando C.I.:', ci);
-    mostrarNotificacion('🔍 Buscando estudiante...', 'info');
-
-    try {
-        const res = await fetch(CONFIG.scriptUrl + '?action=getStudents');
-        const estudiantes = await res.json();
-        console.log('Estudiantes recibidos:', estudiantes.length);
-
-        if (!Array.isArray(estudiantes) || estudiantes.length === 0) {
-            mostrarModalError('La base de datos no devolvió estudiantes. Verifica la hoja "Estudiantes".');
-            escaneando = false;
-            return;
-        }
-
-        const estudiante = estudiantes.find(e => String(e.ci).replace(/\D/g, '') === ci);
-
-        if (!estudiante) {
-            mostrarModalError('No se encontró ningún estudiante con la C.I. ' + ci);
-            escaneando = false;
-            return;
-        }
-
-        estudianteActual = estudiante;
-        mostrarPasoFoto();
-
-    } catch (error) {
-        console.error('Error:', error);
-        mostrarNotificacion('❌ Error al consultar la base de datos', 'error');
-        escaneando = false;
-    }
-}
-
-// ============================================================
-// CAMBIO DE PASOS
-// ============================================================
-function mostrarPasoEscanear() {
-    document.getElementById('paso-escanear').classList.remove('hidden');
-    document.getElementById('paso-foto').classList.add('hidden');
-    document.getElementById('paso-confirmacion').classList.add('hidden');
-    document.getElementById('scanner-placeholder').classList.remove('hidden');
-    document.getElementById('scanner-container').classList.add('hidden');
-    document.getElementById('error-camara').classList.add('hidden');
-    document.getElementById('input-ci-manual').value = '';
-    escaneando = false;
+  try {
+    html5QrCode = new Html5Qrcode("reader");
+    await html5QrCode.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 240, height: 240 } },
+      function(decodedText) {
+        if (escaneando) return;
+        escaneando = true;
+        if (navigator.vibrate) navigator.vibrate(100);
+        detenerEscaner(true).then(function() { procesarCI(decodedText); });
+      },
+      function() {}
+    );
+    escanerActivo = true;
+    console.log('Escáner iniciado');
+  } catch (error) {
+    console.error('Error escáner:', error);
     escanerActivo = false;
-    detenerCamaraFoto();
-    detenerEscaner();
+    var msg = 'No se pudo acceder a la cámara. ';
+    if (error.name === 'NotAllowedError') msg += 'Permiso denegado.';
+    else if (error.name === 'NotFoundError') msg += 'No se encontró cámara.';
+    else msg += error.toString();
+    mostrarErrorCamara(msg);
+  }
 }
 
-function mostrarPasoFoto() {
-    document.getElementById('paso-escanear').classList.add('hidden');
-    document.getElementById('paso-foto').classList.remove('hidden');
-    document.getElementById('paso-confirmacion').classList.add('hidden');
-
-    const nombre = estudianteActual.nombreCompleto || '';
-    document.getElementById('nombre-estudiante').textContent = nombre;
-    document.getElementById('ci-estudiante').textContent = estudianteActual.ci || '--';
-    document.getElementById('pnf-estudiante').textContent = estudianteActual.pnf || '--';
-    document.getElementById('iniciales-estudiante').textContent =
-        nombre.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || '--';
-
-    document.getElementById('foto-placeholder').classList.remove('hidden');
-    document.getElementById('btn-capturar').classList.add('hidden');
-    document.getElementById('controles-post-captura').classList.add('hidden');
-    document.getElementById('video').classList.remove('active');
-    document.getElementById('foto-preview').classList.add('hidden');
-    fotoCapturadaBase64 = null;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function mostrarPasoConfirmacion(fechaHora) {
-    document.getElementById('paso-escanear').classList.add('hidden');
-    document.getElementById('paso-foto').classList.add('hidden');
-    document.getElementById('paso-confirmacion').classList.remove('hidden');
-    document.getElementById('confirm-nombre').textContent = estudianteActual.nombreCompleto || '--';
-    document.getElementById('confirm-ci').textContent = estudianteActual.ci || '--';
-    document.getElementById('confirm-pnf').textContent = estudianteActual.pnf || '--';
-    document.getElementById('confirm-fecha').textContent = fechaHora;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function reiniciarFlujo() {
-    estudianteActual = null;
-    fotoCapturadaBase64 = null;
-    mostrarPasoEscanear();
-}
-
-// ============================================================
-// CÁMARA FOTO
-// ============================================================
-async function iniciarCamara() {
+async function detenerEscaner(mantener) {
+  if (html5QrCode && escanerActivo) {
     try {
-        const constraints = {
-            video: { facingMode: { ideal: 'user' }, width: { ideal: 1280 }, height: { ideal: 960 } },
-            audio: false
-        };
-        streamActual = await navigator.mediaDevices.getUserMedia(constraints);
-        const video = document.getElementById('video');
-        video.srcObject = streamActual;
-        video.classList.add('active');
-        document.getElementById('foto-placeholder').classList.add('hidden');
-        document.getElementById('btn-capturar').classList.remove('hidden');
-        document.getElementById('foto-preview').classList.add('hidden');
-    } catch (error) {
-        console.error('Error cámara foto:', error);
-        let msg = '❌ No se pudo acceder a la cámara. ';
-        if (error.name === 'NotAllowedError') msg += 'Permiso denegado.';
-        else if (error.name === 'NotFoundError') msg += 'No se encontró cámara.';
-        else msg += 'Verifica que uses HTTPS.';
-        mostrarNotificacion(msg, 'error');
+      await html5QrCode.stop();
+      await html5QrCode.clear();
+    } catch(e) {}
+    html5QrCode = null;
+    escanerActivo = false;
+  }
+  if (!mantener) {
+    document.getElementById('scanner-container').classList.add('hidden');
+    document.getElementById('placeholder').classList.remove('hidden');
+  }
+}
+
+async function procesarCI(texto) {
+  if (!texto) return;
+  var ci = String(texto).replace(/\D/g, '');
+  if (!ci || ci.length < 4) {
+    notif('Código inválido', 'error');
+    escaneando = false;
+    return;
+  }
+  console.log('Buscando CI:', ci);
+  notif('Buscando estudiante...');
+
+  try {
+    var res = await fetch(API_URL + '?action=getStudents');
+    var estudiantes = await res.json();
+    console.log('Recibidos:', estudiantes.length);
+
+    if (!Array.isArray(estudiantes) || estudiantes.length === 0) {
+      notif('No hay estudiantes en la base', 'error');
+      escaneando = false;
+      return;
     }
+
+    var est = estudiantes.find(function(e) {
+      return String(e.ci).replace(/\D/g, '') === ci;
+    });
+
+    if (!est) {
+      notif('Estudiante no encontrado: ' + ci, 'error');
+      escaneando = false;
+      return;
+    }
+
+    estudiante = est;
+    irAPasoFoto();
+  } catch (error) {
+    console.error('Error:', error);
+    notif('Error de conexión', 'error');
+    escaneando = false;
+  }
+}
+
+function irAPasoEscanear() {
+  document.getElementById('paso-escanear').classList.remove('hidden');
+  document.getElementById('paso-foto').classList.add('hidden');
+  document.getElementById('paso-confirmacion').classList.add('hidden');
+  document.getElementById('placeholder').classList.remove('hidden');
+  document.getElementById('scanner-container').classList.add('hidden');
+  document.getElementById('error-camara').classList.add('hidden');
+  document.getElementById('input-ci').value = '';
+  escaneando = false;
+  escanerActivo = false;
+  detenerCamaraFoto();
+  detenerEscaner();
+}
+
+function irAPasoFoto() {
+  document.getElementById('paso-escanear').classList.add('hidden');
+  document.getElementById('paso-foto').classList.remove('hidden');
+  document.getElementById('paso-confirmacion').classList.add('hidden');
+
+  var nombre = estudiante.nombreCompleto || '';
+  document.getElementById('nombre-est').textContent = nombre;
+  document.getElementById('ci-est').textContent = estudiante.ci || '--';
+  document.getElementById('pnf-est').textContent = estudiante.pnf || '--';
+  document.getElementById('iniciales').textContent = nombre.split(' ').map(function(n) { return n[0]; }).join('').substring(0, 2).toUpperCase();
+
+  document.getElementById('foto-placeholder').classList.remove('hidden');
+  document.getElementById('btn-capturar').classList.add('hidden');
+  document.getElementById('controles-post').classList.add('hidden');
+  document.getElementById('video').classList.remove('active');
+  document.getElementById('foto-preview').style.display = 'none';
+  fotoBase64 = null;
+  window.scrollTo(0, 0);
+}
+
+function irAPasoConfirmacion(fechaTexto) {
+  document.getElementById('paso-escanear').classList.add('hidden');
+  document.getElementById('paso-foto').classList.add('hidden');
+  document.getElementById('paso-confirmacion').classList.remove('hidden');
+  document.getElementById('conf-nombre').textContent = estudiante.nombreCompleto || '--';
+  document.getElementById('conf-ci').textContent = estudiante.ci || '--';
+  document.getElementById('conf-pnf').textContent = estudiante.pnf || '--';
+  document.getElementById('conf-fecha').textContent = fechaTexto;
+  window.scrollTo(0, 0);
+}
+
+async function iniciarCamara() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 960 } },
+      audio: false
+    });
+    var video = document.getElementById('video');
+    video.srcObject = stream;
+    video.classList.add('active');
+    document.getElementById('foto-placeholder').classList.add('hidden');
+    document.getElementById('btn-capturar').classList.remove('hidden');
+    document.getElementById('foto-preview').style.display = 'none';
+  } catch (error) {
+    console.error('Error cámara:', error);
+    notif('Error: ' + error.name, 'error');
+  }
 }
 
 function capturarFoto() {
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const preview = document.getElementById('foto-preview');
-    if (!video.videoWidth) {
-        mostrarNotificacion('⚠️ La cámara aún no está lista.', 'error');
-        return;
-    }
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-    fotoCapturadaBase64 = canvas.toDataURL('image/jpeg', 0.7);
-    preview.src = fotoCapturadaBase64;
-    preview.classList.remove('hidden');
-    video.classList.remove('active');
-    document.getElementById('btn-capturar').classList.add('hidden');
-    document.getElementById('controles-post-captura').classList.remove('hidden');
-    if (navigator.vibrate) navigator.vibrate(50);
-    detenerCamaraFoto();
+  var video = document.getElementById('video');
+  var canvas = document.getElementById('canvas');
+  var preview = document.getElementById('foto-preview');
+
+  if (!video.videoWidth) {
+    notif('Cámara no lista', 'error');
+    return;
+  }
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+
+  fotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
+  preview.src = fotoBase64;
+  preview.style.display = 'block';
+  video.classList.remove('active');
+
+  document.getElementById('btn-capturar').classList.add('hidden');
+  document.getElementById('controles-post').classList.remove('hidden');
+  if (navigator.vibrate) navigator.vibrate(50);
+  detenerCamaraFoto();
 }
 
 function reiniciarCamara() {
-    document.getElementById('foto-preview').classList.add('hidden');
-    document.getElementById('video').classList.add('active');
-    document.getElementById('controles-post-captura').classList.add('hidden');
-    document.getElementById('btn-capturar').classList.remove('hidden');
-    fotoCapturadaBase64 = null;
-    iniciarCamara();
+  document.getElementById('foto-preview').style.display = 'none';
+  document.getElementById('video').classList.add('active');
+  document.getElementById('controles-post').classList.add('hidden');
+  document.getElementById('btn-capturar').classList.remove('hidden');
+  fotoBase64 = null;
+  iniciarCamara();
 }
 
 function detenerCamaraFoto() {
-    if (streamActual) {
-        streamActual.getTracks().forEach(track => track.stop());
-        streamActual = null;
-    }
+  if (stream) {
+    stream.getTracks().forEach(function(t) { t.stop(); });
+    stream = null;
+  }
 }
 
-// ============================================================
-// REGISTRAR ASISTENCIA
-// ============================================================
+function formatearFecha(d) {
+  var pad = function(n) { return String(n).padStart(2, '0'); };
+  return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+}
+
 async function registrarAsistencia() {
-    if (!fotoCapturadaBase64) {
-        mostrarNotificacion('⚠️ Primero debes tomar una foto.', 'error');
-        return;
-    }
-    const btn = document.getElementById('btn-registrar');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="loader"></span> Registrando...';
+  if (!fotoBase64) {
+    notif('Toma una foto primero', 'error');
+    return;
+  }
+  var btn = document.getElementById('btn-registrar');
+  btn.disabled = true;
+  btn.textContent = 'Registrando...';
 
-    const ahora = new Date();
-    const fecha = formatearFecha(ahora, 'yyyy-MM-dd');
-    const hora = ahora.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit', hour12: false });
-    const fechaHoraTexto = ahora.toLocaleString('es-VE', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-        hour: '2-digit', minute: '2-digit'
+  var ahora = new Date();
+  var fecha = formatearFecha(ahora);
+  var hora = ahora.toTimeString().substring(0, 5);
+  var fechaTexto = ahora.toLocaleString('es-VE');
+
+  try {
+    notif('Subiendo foto...');
+    var resFoto = await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'uploadPhoto', imageBase64: fotoBase64, ci: estudiante.ci }),
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }
     });
+    var dataFoto = await resFoto.json();
+    if (!dataFoto.success) throw new Error('Foto: ' + dataFoto.message);
 
-    try {
-        mostrarNotificacion('📤 Subiendo foto...', 'info');
-        const resFoto = await fetch(CONFIG.scriptUrl, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'uploadPhoto', imageBase64: fotoCapturadaBase64, ci: estudianteActual.ci }),
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-        });
-        const dataFoto = await resFoto.json();
-        if (!dataFoto.success) throw new Error('Error al subir foto: ' + (dataFoto.message || 'desconocido'));
+    notif('Guardando asistencia...');
+    var resAsist = await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'saveAttendance',
+        registros: [{
+          ci: estudiante.ci,
+          nombre: estudiante.nombreCompleto,
+          pnf: estudiante.pnf,
+          dia: ahora.toLocaleDateString('es-VE', { weekday: 'long' }),
+          fecha: fecha,
+          hora: hora,
+          estado: 'Presente',
+          fotoUrl: dataFoto.url
+        }]
+      }),
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+    });
+    var dataAsist = await resAsist.json();
+    if (!dataAsist.success) throw new Error('Asistencia: ' + dataAsist.message);
 
-        mostrarNotificacion('📝 Guardando asistencia...', 'info');
-        const resAsist = await fetch(CONFIG.scriptUrl, {
-            method: 'POST',
-            body: JSON.stringify({
-                action: 'saveAttendance',
-                registros: [{
-                    ci: estudianteActual.ci,
-                    nombre: estudianteActual.nombreCompleto,
-                    pnf: estudianteActual.pnf,
-                    dia: ahora.toLocaleDateString('es-VE', { weekday: 'long' }),
-                    fecha: fecha,
-                    hora: hora,
-                    estado: 'Presente',
-                    fotoUrl: dataFoto.url
-                }]
-            }),
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-        });
-        const dataAsist = await resAsist.json();
-        if (!dataAsist.success) throw new Error('Error al guardar asistencia: ' + (dataAsist.message || 'desconocido'));
-
-        mostrarNotificacion('✅ Asistencia registrada', 'exito');
-        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-        mostrarPasoConfirmacion(fechaHoraTexto);
-        setTimeout(() => generarPDFAsistencia(estudianteActual, fecha, hora), 300);
-
-    } catch (error) {
-        console.error('Error:', error);
-        mostrarNotificacion('❌ ' + error.message, 'error');
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = '✅ Registrar Asistencia';
-    }
+    notif('Asistencia registrada', 'exito');
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+    irAPasoConfirmacion(fechaTexto);
+  } catch (error) {
+    console.error(error);
+    notif('Error: ' + error.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✅ Registrar Asistencia';
+  }
 }
 
-function formatearFecha(date, format) {
-    const pad = (n) => String(n).padStart(2, '0');
-    return format.replace('yyyy', date.getFullYear()).replace('MM', pad(date.getMonth() + 1)).replace('dd', pad(date.getDate()));
-}
+// EVENT LISTENERS (se ejecutan cuando el DOM está listo)
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Portal QR iniciado. API:', API_URL);
 
-// ============================================================
-// PDF
-// ============================================================
-function generarPDFAsistencia(estudiante, fecha, hora) {
-    try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.setFillColor(163, 255, 18);
-        doc.rect(0, 0, 210, 35, 'F');
-        doc.setTextColor(0, 0, 0);
-        doc.setFontSize(18);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Comprobante de Asistencia', 14, 15);
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
-        doc.text('Portal Universitario - Registro QR', 14, 25);
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Datos del Estudiante', 14, 50);
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(11);
-        const datos = [
-            ['Nombre:', estudiante.nombreCompleto || '--'],
-            ['Cédula:', estudiante.ci || '--'],
-            ['PNF:', estudiante.pnf || '--'],
-            ['Trayecto:', estudiante.trayecto || '--'],
-            ['Período:', estudiante.periodo || '--'],
-            ['Fecha:', fecha],
-            ['Hora:', hora],
-            ['Estado:', 'Presente']
-        ];
-        let y = 60;
-        datos.forEach(([label, valor]) => {
-            doc.setFont('helvetica', 'bold');
-            doc.text(label, 14, y);
-            doc.setFont('helvetica', 'normal');
-            doc.text(String(valor), 60, y);
-            y += 10;
-        });
-        doc.setFontSize(9);
-        doc.setTextColor(128, 128, 128);
-        doc.text('Generado el ' + new Date().toLocaleString('es-VE'), 14, 280);
-        doc.save('Asistencia_' + estudiante.ci + '_' + fecha + '.pdf');
-        mostrarNotificacion('📄 PDF generado', 'exito');
-    } catch (error) {
-        console.error('Error PDF:', error);
-    }
-}
+  document.getElementById('btn-iniciar-escaner').addEventListener('click', iniciarEscaner);
+  document.getElementById('btn-detener-escaner').addEventListener('click', function() { detenerEscaner(); });
+  document.getElementById('btn-reintentar').addEventListener('click', iniciarEscaner);
+  document.getElementById('btn-buscar').addEventListener('click', function() {
+    procesarCI(document.getElementById('input-ci').value);
+  });
+  document.getElementById('btn-encender-camara').addEventListener('click', iniciarCamara);
+  document.getElementById('btn-capturar').addEventListener('click', capturarFoto);
+  document.getElementById('btn-repetir').addEventListener('click', reiniciarCamara);
+  document.getElementById('btn-registrar').addEventListener('click', registrarAsistencia);
+  document.getElementById('btn-reiniciar').addEventListener('click', function() {
+    estudiante = null;
+    fotoBase64 = null;
+    irAPasoEscanear();
+  });
 
-// ============================================================
-// UTILIDADES
-// ============================================================
-function mostrarNotificacion(mensaje, tipo = 'info') {
-    const notif = document.getElementById('notificacion');
-    notif.textContent = mensaje;
-    notif.className = 'visible';
-    if (tipo === 'exito') notif.classList.add('exito');
-    if (tipo === 'error') notif.classList.add('error');
-    clearTimeout(notif._timeout);
-    notif._timeout = setTimeout(() => notif.classList.remove('visible', 'exito', 'error'), 4000);
-}
-
-function mostrarModalError(mensaje) {
-    document.getElementById('error-mensaje').textContent = mensaje;
-    document.getElementById('modal-error').classList.add('active');
-}
-
-function cerrarModalError() {
-    document.getElementById('modal-error').classList.remove('active');
-    escaneando = false;
-}
-
-window.addEventListener('beforeunload', () => {
-    detenerCamaraFoto();
-    if (html5QrCode && escanerActivo) html5QrCode.stop().catch(() => {});
+  // Verificar API
+  fetch(API_URL + '?action=ping')
+    .then(function(r) { return r.json(); })
+    .then(function(d) { console.log('API OK:', d); })
+    .catch(function(e) { console.error('API error:', e); });
 });
 </script>
 </body>
