@@ -25,26 +25,22 @@
   .neon{color:#a3ff12}
   .hidden{display:none!important}
 
-  /* ============================================
-     SPLASH SCREEN
-     ============================================ */
-  #splash{position:fixed;inset:0;background:#0f1115;z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s ease,visibility .6s}
+  /* SPLASH */
+  #splash{position:fixed;inset:0;background:#0f1115;z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s ease,visibility .5s}
   #splash.hide{opacity:0;visibility:hidden}
   .splash-logo{width:100px;height:100px;border-radius:50%;background:#a3ff12;color:#000;font-weight:900;font-size:38px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 60px rgba(163,255,18,.6);animation:logoPulse 1.5s ease-in-out infinite}
   @keyframes logoPulse{0%,100%{transform:scale(1);box-shadow:0 0 60px rgba(163,255,18,.6)}50%{transform:scale(1.08);box-shadow:0 0 90px rgba(163,255,18,.9)}}
-  .splash-title{color:#fff;font-size:20px;font-weight:700;margin-top:24px;opacity:0;animation:fadeUp .6s ease .3s forwards}
-  .splash-sub{color:#9ca3af;font-size:13px;margin-top:6px;opacity:0;animation:fadeUp .6s ease .5s forwards}
-  .splash-bar{width:180px;height:3px;background:#1f2937;border-radius:2px;margin-top:32px;overflow:hidden;opacity:0;animation:fadeUp .6s ease .7s forwards}
-  .splash-bar-inner{height:100%;width:0;background:#a3ff12;border-radius:2px;animation:loadBar 1.8s ease .8s forwards}
+  .splash-title{color:#fff;font-size:20px;font-weight:700;margin-top:24px;opacity:0;animation:fadeUp .5s ease .2s forwards}
+  .splash-sub{color:#9ca3af;font-size:13px;margin-top:6px;opacity:0;animation:fadeUp .5s ease .35s forwards}
+  .splash-bar{width:180px;height:3px;background:#1f2937;border-radius:2px;margin-top:32px;overflow:hidden;opacity:0;animation:fadeUp .5s ease .5s forwards}
+  .splash-bar-inner{height:100%;width:0;background:#a3ff12;border-radius:2px;animation:loadBar 1.2s ease .6s forwards}
   @keyframes loadBar{0%{width:0}100%{width:100%}}
   @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
-  /* ============================================
-     TUTORIAL OVERLAY
-     ============================================ */
-  #tutorial{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);animation:fadeIn .4s ease}
+  /* TUTORIAL */
+  #tutorial{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);animation:fadeIn .3s ease}
   #tutorial.hidden{display:none}
-  .tutorial-card{background:#181a20;border:1px solid #1f2937;border-radius:20px;padding:28px;max-width:460px;width:100%;text-align:center;animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
+  .tutorial-card{background:#181a20;border:1px solid #1f2937;border-radius:20px;padding:28px;max-width:460px;width:100%;text-align:center;animation:popIn .3s cubic-bezier(.34,1.56,.64,1)}
   @keyframes popIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
   @keyframes fadeIn{from{opacity:0}to{opacity:1}}
   .tutorial-icon{font-size:64px;margin-bottom:16px;display:inline-block;animation:bounceIcon 1.2s ease-in-out infinite}
@@ -53,10 +49,8 @@
   .tutorial-dot{width:8px;height:8px;border-radius:50%;background:#374151;transition:all .3s}
   .tutorial-dot.active{background:#a3ff12;width:24px;border-radius:4px}
 
-  /* ============================================
-     APP LAYOUT
-     ============================================ */
-  .app{display:flex;flex-direction:column;height:100vh;height:100dvh;padding:10px;gap:10px;padding-top:calc(10px + env(safe-area-inset-top));padding-bottom:calc(10px + env(safe-area-inset-bottom));opacity:0;transition:opacity .5s ease}
+  /* APP LAYOUT */
+  .app{display:flex;flex-direction:column;height:100vh;height:100dvh;padding:10px;gap:10px;padding-top:calc(10px + env(safe-area-inset-top));padding-bottom:calc(10px + env(safe-area-inset-bottom));opacity:0;transition:opacity .4s ease}
   .app.ready{opacity:1}
 
   .header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#181a20;border:1px solid #1f2937;border-radius:14px;flex-shrink:0;transition:border-color .3s}
@@ -66,13 +60,21 @@
   .header h1{font-size:15px;font-weight:700;color:#fff;margin:0}
   .header p{font-size:11px;color:#9ca3af;margin:0}
 
+  /* Estado backend */
+  .backend-status{display:flex;align-items:center;gap:6px;font-size:10px;padding:4px 10px;border-radius:20px;background:#0f1115;border:1px solid #1f2937;transition:all .3s}
+  .backend-status .dot{width:8px;height:8px;border-radius:50%;background:#6b7280;transition:background .3s}
+  .backend-status.online .dot{background:#a3ff12;box-shadow:0 0 10px #a3ff12}
+  .backend-status.online{border-color:rgba(163,255,18,.3)}
+  .backend-status.offline .dot{background:#f87171}
+  .backend-status.offline{border-color:rgba(248,113,113,.3)}
+
   .step-indicator{display:flex;gap:4px;align-items:center}
-  .step-dot{width:22px;height:4px;border-radius:2px;background:#1f2937;transition:all .4s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden}
+  .step-dot{width:22px;height:4px;border-radius:2px;background:#1f2937;transition:all .4s cubic-bezier(.34,1.56,.64,1)}
   .step-dot.active{background:#a3ff12;width:36px;box-shadow:0 0 12px rgba(163,255,18,.5)}
   .step-dot.done{background:rgba(163,255,18,.4)}
 
   .paso{flex:1;display:none;gap:10px;min-height:0}
-  .paso.activo{display:flex;animation:slideIn .35s ease}
+  .paso.activo{display:flex;animation:slideIn .3s ease}
   @keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
 
   .col-izq{flex:1.3;display:flex;flex-direction:column;gap:10px;min-width:0}
@@ -87,43 +89,91 @@
   #reader video{border-radius:12px;object-fit:cover}
   .scan-line{position:absolute;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#a3ff12,transparent);box-shadow:0 0 20px #a3ff12;animation:scanMove 2s ease-in-out infinite;pointer-events:none}
   @keyframes scanMove{0%{top:10%}50%{top:85%}100%{top:10%}}
-  .scan-corners::before,.scan-corners::after,.scan-corners>.corner-b::before,.scan-corners>.corner-b::after{content:'';position:absolute;width:24px;height:24px;border-color:#a3ff12;border-style:solid;pointer-events:none}
+  .scan-corners::before,.scan-corners::after,.scan-corners>.corner-b::before,.scan-corners>.corner-b::after{content:'';position:absolute;width:24px;height:24px;border-color:#a3ff12;border-style:solid;pointer-events:none;z-index:3}
   .scan-corners::before{top:12px;left:12px;border-width:3px 0 0 3px;border-radius:8px 0 0 0}
   .scan-corners::after{top:12px;right:12px;border-width:3px 3px 0 0;border-radius:0 8px 0 0}
   .scan-corners>.corner-b::before{bottom:12px;left:12px;border-width:0 0 3px 3px;border-radius:0 0 0 8px}
   .scan-corners>.corner-b::after{bottom:12px;right:12px;border-width:0 3px 3px 0;border-radius:0 0 8px 0}
+
+  /* Botón de cambio de cámara en el escáner */
+  .camera-switcher{
+    position:absolute;
+    top:12px;
+    left:50%;
+    transform:translateX(-50%);
+    background:rgba(15,17,21,.85);
+    backdrop-filter:blur(10px);
+    border:1px solid rgba(163,255,18,.4);
+    color:#a3ff12;
+    font-weight:700;
+    font-size:11px;
+    padding:8px 14px;
+    border-radius:20px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    z-index:5;
+    transition:all .2s;
+    box-shadow:0 4px 20px rgba(0,0,0,.5);
+    white-space:nowrap;
+    max-width:90%;
+    overflow:hidden;
+  }
+  .camera-switcher:hover{background:rgba(163,255,18,.15);transform:translateX(-50%) scale(1.05)}
+  .camera-switcher:active{transform:translateX(-50%) scale(.95)}
+  .camera-switcher .icon{font-size:14px;display:inline-block;transition:transform .3s}
+  .camera-switcher.switching .icon{animation:rotateIcon .6s ease}
+  @keyframes rotateIcon{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+  .camera-switcher .label{font-size:10px;opacity:.85;font-weight:500;max-width:120px;overflow:hidden;text-overflow:ellipsis}
+
+  /* Badge cámara actual */
+  .camera-badge{
+    position:absolute;
+    top:12px;
+    right:12px;
+    background:rgba(15,17,21,.85);
+    backdrop-filter:blur(10px);
+    border:1px solid #1f2937;
+    color:#9ca3af;
+    font-size:10px;
+    font-weight:600;
+    padding:5px 10px;
+    border-radius:12px;
+    z-index:5;
+    letter-spacing:.3px;
+  }
 
   /* Cámara foto */
   .camera-wrap{flex:1;position:relative;border-radius:14px;overflow:hidden;background:#000;border:2px solid #1f2937;min-height:0;transition:border-color .3s}
   #video{width:100%;height:100%;object-fit:cover;display:none;transform:scaleX(-1)}
   #video.active{display:block}
   #foto-preview{width:100%;height:100%;object-fit:cover;display:none;transform:scaleX(-1)}
-  .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
-  .flash.fire{animation:flashAnim .4s ease}
-  @keyframes flashAnim{0%{opacity:0}20%{opacity:.9}100%{opacity:0}}
+  .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:8}
+  .flash.fire{animation:flashAnim .35s ease}
+  @keyframes flashAnim{0%{opacity:0}15%{opacity:.9}100%{opacity:0}}
 
   .countdown{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);font-size:120px;font-weight:900;color:#a3ff12;text-shadow:0 0 40px rgba(163,255,18,.8);pointer-events:none;z-index:10}
-  .countdown-num{animation:countPop .9s ease}
+  .countdown-num{animation:countPop .75s ease}
   @keyframes countPop{0%{transform:scale(.3);opacity:0}30%{transform:scale(1.2);opacity:1}70%{transform:scale(1);opacity:1}100%{transform:scale(1.5);opacity:0}}
 
   /* Botones */
-  .btn{background:#a3ff12;color:#000;font-weight:700;padding:12px 16px;border-radius:12px;border:none;cursor:pointer;width:100%;font-size:14px;transition:all .2s;box-shadow:0 0 16px rgba(163,255,18,.2);position:relative;overflow:hidden}
+  .btn{background:#a3ff12;color:#000;font-weight:700;padding:12px 16px;border-radius:12px;border:none;cursor:pointer;width:100%;font-size:14px;transition:all .15s;box-shadow:0 0 16px rgba(163,255,18,.2);position:relative;overflow:hidden}
   .btn:hover:not(:disabled){background:#8be60f;transform:translateY(-1px)}
   .btn:active:not(:disabled){transform:scale(.97)}
   .btn:disabled{opacity:.5;cursor:not-allowed}
-  .btn2{background:#1f2937;color:#e5e7eb;font-weight:600;padding:12px 16px;border-radius:12px;border:1px solid #374151;cursor:pointer;width:100%;font-size:14px;transition:all .2s;position:relative;overflow:hidden}
+  .btn2{background:#1f2937;color:#e5e7eb;font-weight:600;padding:12px 16px;border-radius:12px;border:1px solid #374151;cursor:pointer;width:100%;font-size:14px;transition:all .15s;position:relative;overflow:hidden}
   .btn2:hover{background:#374151}
   .btn2:active{transform:scale(.97)}
   .btn-sm{padding:8px 14px;font-size:12px}
-  .ripple{position:absolute;border-radius:50%;background:rgba(0,0,0,.3);transform:scale(0);animation:rippleAnim .6s ease-out;pointer-events:none}
+  .ripple{position:absolute;border-radius:50%;background:rgba(0,0,0,.3);transform:scale(0);animation:rippleAnim .5s ease-out;pointer-events:none}
   @keyframes rippleAnim{to{transform:scale(4);opacity:0}}
 
   .avatar{width:42px;height:42px;border-radius:50%;background:rgba(163,255,18,.15);border:1px solid rgba(163,255,18,.35);display:flex;align-items:center;justify-content:center;color:#a3ff12;font-weight:700;font-size:14px;flex-shrink:0;transition:all .3s}
   .avatar.pulse{animation:avatarPulse .8s ease}
   @keyframes avatarPulse{0%{transform:scale(1)}50%{transform:scale(1.15);box-shadow:0 0 30px rgba(163,255,18,.6)}100%{transform:scale(1)}}
 
-  /* Notificaciones */
-  #notif{position:fixed;bottom:12px;left:50%;transform:translateX(-50%) translateY(20px);padding:11px 20px;border-radius:10px;background:#181a20;border:1px solid #1f2937;font-size:13px;box-shadow:0 10px 40px rgba(0,0,0,.6);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);z-index:9999;max-width:90vw;text-align:center;pointer-events:none;bottom:calc(12px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:8px}
+  #notif{position:fixed;bottom:12px;left:50%;transform:translateX(-50%) translateY(20px);padding:11px 20px;border-radius:10px;background:#181a20;border:1px solid #1f2937;font-size:13px;box-shadow:0 10px 40px rgba(0,0,0,.6);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);z-index:9999;max-width:90vw;text-align:center;pointer-events:none;bottom:calc(12px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:8px}
   #notif.visible{opacity:1;transform:translateX(-50%) translateY(0)}
   #notif.exito{border-color:#a3ff12;color:#a3ff12}
   #notif.error{border-color:#f87171;color:#f87171}
@@ -132,90 +182,44 @@
   .loader{display:inline-block;width:14px;height:14px;border:2px solid #374151;border-top-color:#a3ff12;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px}
   @keyframes spin{to{transform:rotate(360deg)}}
 
-  /* Confetti */
   #confetti{position:fixed;inset:0;pointer-events:none;z-index:9500;overflow:hidden}
   .confetti-piece{position:absolute;width:10px;height:10px;opacity:.9;animation:confettiFall 3s linear forwards}
   @keyframes confettiFall{0%{transform:translateY(-10vh) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
 
-  /* Progress bar */
   .progress-track{position:absolute;bottom:0;left:0;right:0;height:3px;background:#1f2937;overflow:hidden;border-radius:0 0 14px 14px}
-  .progress-bar{height:100%;background:#a3ff12;width:0;transition:width .4s ease;box-shadow:0 0 10px #a3ff12}
+  .progress-bar{height:100%;background:#a3ff12;width:0;transition:width .3s ease;box-shadow:0 0 10px #a3ff12}
 
   @keyframes pulseGlow{0%,100%{box-shadow:0 0 16px rgba(163,255,18,.2)}50%{box-shadow:0 0 30px rgba(163,255,18,.5)}}
   .btn-pulse{animation:pulseGlow 2s ease-in-out infinite}
 
-  /* ============================================
-     TECLADO NUMÉRICO (KEYPAD)
-     ============================================ */
+  /* TECLADO */
   #vista-normal{display:flex;flex-direction:column;gap:10px;flex:1;min-height:0}
-  #vista-teclado{display:none;flex-direction:column;gap:8px;flex:1;min-height:0;animation:slideIn .3s ease}
+  #vista-teclado{display:none;flex-direction:column;gap:8px;flex:1;min-height:0;animation:slideIn .25s ease}
   #vista-teclado.activo{display:flex}
 
-  .teclado-display{
-    background:#0f1115;
-    border:2px solid #1f2937;
-    border-radius:12px;
-    padding:10px 14px;
-    text-align:right;
-    transition:border-color .3s;
-    flex-shrink:0;
-  }
+  .teclado-display{background:#0f1115;border:2px solid #1f2937;border-radius:12px;padding:10px 14px;text-align:right;transition:border-color .2s;flex-shrink:0}
   .teclado-display.activo{border-color:#a3ff12;box-shadow:0 0 20px rgba(163,255,18,.15)}
   .teclado-display-label{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;text-align:left;margin-bottom:2px}
   .teclado-display-value{font-size:22px;font-weight:700;color:#fff;min-height:28px;letter-spacing:1px;word-break:break-all;transition:color .2s}
   .teclado-display-value.placeholder{color:#374151;font-size:14px;letter-spacing:0;font-weight:400}
   .teclado-display-value.tiene-datos{color:#a3ff12}
 
-  .teclado-grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    grid-template-rows:repeat(4,1fr);
-    gap:6px;
-    flex:1;
-    min-height:0;
-  }
-
-  .tecla{
-    background:#1f2937;
-    color:#e5e7eb;
-    border:1px solid #374151;
-    border-radius:12px;
-    font-size:22px;
-    font-weight:700;
-    cursor:pointer;
-    transition:all .15s;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    position:relative;
-    overflow:hidden;
-    user-select:none;
-    min-height:0;
-    padding:0;
-  }
-  .tecla:active{
-    background:#374151;
-    transform:scale(.94);
-  }
+  .teclado-grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr);gap:6px;flex:1;min-height:0}
+  .tecla{background:#1f2937;color:#e5e7eb;border:1px solid #374151;border-radius:12px;font-size:22px;font-weight:700;cursor:pointer;transition:all .1s;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;user-select:none;min-height:0;padding:0}
+  .tecla:active{background:#374151;transform:scale(.94)}
   .tecla.tecla-num{font-size:24px}
   .tecla.tecla-borrar{background:#2a1f1f;color:#f87171;border-color:#5a2a2a;font-size:20px}
-  .tecla.tecla-borrar:active{background:#3a2525}
   .tecla.tecla-ok{background:#a3ff12;color:#000;border-color:#8be60f;font-size:24px;box-shadow:0 0 12px rgba(163,255,18,.4)}
-  .tecla.tecla-ok:active{background:#8be60f;transform:scale(.94)}
   .tecla.tecla-ok:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
 
-  .teclado-acciones{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:6px;
-    flex-shrink:0;
-  }
-  .teclado-acciones .btn2,
-  .teclado-acciones .btn{
-    padding:10px 8px;
-    font-size:12px;
-    border-radius:10px;
-  }
+  .teclado-acciones{display:grid;grid-template-columns:1fr 1fr;gap:6px;flex-shrink:0}
+  .teclado-acciones .btn2{padding:10px 8px;font-size:12px;border-radius:10px}
+
+  /* SKELETON DE CARGA PARA ESTUDIANTES */
+  .skeleton-card{display:flex;gap:10px;align-items:center;padding:12px;background:#181a20;border:1px solid #1f2937;border-radius:14px;margin-bottom:8px}
+  .skeleton-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(90deg,#1f2937 25%,#2d3748 50%,#1f2937 75%);background-size:200% 100%;animation:skeletonAnim 1.4s ease-in-out infinite;flex-shrink:0}
+  .skeleton-line{height:12px;border-radius:6px;background:linear-gradient(90deg,#1f2937 25%,#2d3748 50%,#1f2937 75%);background-size:200% 100%;animation:skeletonAnim 1.4s ease-in-out infinite;margin-bottom:6px}
+  @keyframes skeletonAnim{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
   /* PORTRAIT */
   @media (orientation: portrait) {
@@ -245,8 +249,9 @@
     .tecla.tecla-ok{font-size:20px}
     .teclado-grid{gap:4px}
     .teclado-acciones{gap:4px}
-    .teclado-acciones .btn,
     .teclado-acciones .btn2{padding:8px 6px;font-size:11px}
+    .camera-switcher{padding:6px 10px;font-size:10px;top:8px}
+    .camera-badge{padding:4px 8px;font-size:9px;top:8px;right:8px}
   }
 
   @media (orientation: landscape) and (min-width: 900px) {
@@ -293,10 +298,16 @@
         <p id="headerSub">Escanea el código QR del estudiante</p>
       </div>
     </div>
-    <div class="step-indicator">
-      <div id="dot1" class="step-dot active"></div>
-      <div id="dot2" class="step-dot"></div>
-      <div id="dot3" class="step-dot"></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="backend-status" id="backendStatus">
+        <span class="dot"></span>
+        <span id="backendText">Conectando</span>
+      </div>
+      <div class="step-indicator">
+        <div id="dot1" class="step-dot active"></div>
+        <div id="dot2" class="step-dot"></div>
+        <div id="dot3" class="step-dot"></div>
+      </div>
     </div>
   </div>
 
@@ -317,6 +328,15 @@
             <div id="reader"></div>
             <div class="scan-line"></div>
             <div class="corner-b"></div>
+
+            <!-- Botón cambio de cámara -->
+            <button id="btn-cambiar-camara" class="camera-switcher hidden">
+              <span class="icon">🔄</span>
+              <span class="label">Cambiar cámara</span>
+            </button>
+
+            <!-- Badge con nombre cámara actual -->
+            <div id="camera-badge" class="camera-badge hidden">Trasera</div>
           </div>
           <button id="btn-detener-escaner" class="btn2 btn-sm" style="margin-top:8px">⏹️ Detener</button>
         </div>
@@ -329,10 +349,7 @@
       </div>
     </div>
 
-    <!-- COLUMNA DERECHA CON DOS VISTAS -->
     <div class="col-der">
-
-      <!-- VISTA NORMAL: botón ingreso manual + instrucciones -->
       <div id="vista-normal">
         <button id="btn-abrir-teclado" class="btn btn-pulse" style="padding:14px 16px">
           ⌨️ Ingreso Manual
@@ -361,15 +378,12 @@
         </div>
       </div>
 
-      <!-- VISTA TECLADO: ocupa toda la columna derecha -->
       <div id="vista-teclado">
-        <!-- Display de la cédula -->
         <div class="teclado-display" id="teclado-display">
           <div class="teclado-display-label">Cédula del estudiante</div>
           <div class="teclado-display-value placeholder" id="teclado-valor">Ingresa el número...</div>
         </div>
 
-        <!-- Grid del teclado -->
         <div class="teclado-grid">
           <button class="tecla tecla-num" data-key="1">1</button>
           <button class="tecla tecla-num" data-key="2">2</button>
@@ -385,7 +399,6 @@
           <button class="tecla tecla-ok" data-key="ok">✓</button>
         </div>
 
-        <!-- Botones de acción -->
         <div class="teclado-acciones">
           <button id="btn-cerrar-teclado" class="btn2">✕ Cancelar</button>
           <button id="btn-limpiar-teclado" class="btn2">🗑 Limpiar</button>
@@ -448,8 +461,8 @@
       <div class="card card-full" style="display:flex;align-items:center;justify-content:center;position:relative">
         <div class="progress-track"><div class="progress-bar" style="width:100%"></div></div>
         <div style="text-align:center">
-          <div id="check-container" style="width:120px;height:120px;border-radius:50%;background:rgba(163,255,18,.15);border:3px solid rgba(163,255,18,.4);display:flex;align-items:center;justify-content:center;font-size:60px;margin:0 auto;animation:successPop .7s cubic-bezier(.34,1.56,.64,1)">✅</div>
-          <p id="success-msg" style="color:#a3ff12;font-size:14px;font-weight:600;margin:20px 0 0;opacity:0;animation:fadeUp .6s ease .5s forwards">Asistencia registrada</p>
+          <div id="check-container" style="width:120px;height:120px;border-radius:50%;background:rgba(163,255,18,.15);border:3px solid rgba(163,255,18,.4);display:flex;align-items:center;justify-content:center;font-size:60px;margin:0 auto;animation:successPop .6s cubic-bezier(.34,1.56,.64,1)">✅</div>
+          <p id="success-msg" style="color:#a3ff12;font-size:14px;font-weight:600;margin:20px 0 0;opacity:0;animation:fadeUp .5s ease .4s forwards">Asistencia registrada</p>
         </div>
       </div>
     </div>
@@ -482,8 +495,16 @@
 </div>
 
 <script>
+// ============================================================
+// CONFIGURACIÓN
+// ============================================================
 var API_URL = 'https://script.google.com/macros/s/AKfycbxs9lJS5ooh78lksVGgx15QfblWOis5HwNgx1cT78JMwQxWTevqZss4EhTzAcCBtIVj/exec';
+var CACHE_TTL = 3 * 60 * 1000; // 3 minutos
+var PREFERRED_CAMERA_KEY = 'portal_camera_pref';
 
+// ============================================================
+// ESTADO GLOBAL
+// ============================================================
 var qrScanner = null;
 var streamActual = null;
 var fotoBase64 = null;
@@ -492,9 +513,17 @@ var escaneando = false;
 var escanerActivo = false;
 var capturando = false;
 
-// ============================================================
-// TECLADO - ESTADO
-// ============================================================
+// Cache de estudiantes
+var estudiantesCache = null;
+var estudiantesCacheTime = 0;
+var estudiantesCacheFetching = null;
+
+// Cámaras
+var camarasDisponibles = [];
+var camaraIndexActual = 0;
+var cambiandoCamara = false;
+
+// Teclado
 var tecladoValor = '';
 
 // ============================================================
@@ -516,14 +545,15 @@ function beep(freq, dur, type) {
     osc.start(); osc.stop(audioCtx.currentTime + dur/1000);
   } catch(e) {}
 }
-function sonidoExito() { beep(523, 120); setTimeout(function() { beep(659, 120); }, 120); setTimeout(function() { beep(784, 200); }, 240); }
-function sonidoError() { beep(220, 200, 'square'); setTimeout(function() { beep(180, 300, 'square'); }, 150); }
-function sonidoEscaneo() { beep(1200, 80); }
-function sonidoCaptura() { beep(900, 60, 'square'); }
-function sonidoCountdown(n) { beep(n === 1 ? 1200 : 800, 100); }
-function sonidoTecla() { beep(1400, 40, 'sine'); }
-function sonidoTeclaDel() { beep(600, 60, 'sine'); }
-function sonidoTeclaOk() { beep(880, 80, 'sine'); setTimeout(function() { beep(1200, 100, 'sine'); }, 80); }
+function sonidoExito() { beep(523, 100); setTimeout(function() { beep(659, 100); }, 100); setTimeout(function() { beep(784, 180); }, 200); }
+function sonidoError() { beep(220, 180, 'square'); setTimeout(function() { beep(180, 250, 'square'); }, 130); }
+function sonidoEscaneo() { beep(1200, 70); }
+function sonidoCaptura() { beep(900, 50, 'square'); }
+function sonidoCountdown(n) { beep(n === 1 ? 1200 : 800, 90); }
+function sonidoTecla() { beep(1400, 35); }
+function sonidoTeclaDel() { beep(600, 50); }
+function sonidoTeclaOk() { beep(880, 70); setTimeout(function() { beep(1200, 90); }, 70); }
+function sonidoCambioCamara() { beep(700, 60); setTimeout(function() { beep(1000, 80); }, 60); }
 
 function vib(pattern) { if (navigator.vibrate) navigator.vibrate(pattern); }
 
@@ -539,7 +569,7 @@ if ('serviceWorker' in navigator) {
 }
 
 // ============================================================
-// NOTIFICACIONES
+// UTILIDADES
 // ============================================================
 function notif(msg, tipo) {
   var n = document.getElementById('notif');
@@ -547,51 +577,17 @@ function notif(msg, tipo) {
   n.innerHTML = '<span>' + icon + '</span><span>' + msg + '</span>';
   n.className = 'visible' + (tipo ? ' ' + tipo : '');
   clearTimeout(n._t);
-  n._t = setTimeout(function() { n.className = ''; }, 3500);
+  n._t = setTimeout(function() { n.className = ''; }, 3000);
   if (tipo === 'exito') sonidoExito();
   if (tipo === 'error') sonidoError();
 }
 
-// ============================================================
-// RIPPLE
-// ============================================================
-document.addEventListener('click', function(e) {
-  var btn = e.target.closest('.btn, .btn2, .tecla');
-  if (!btn) return;
-  var rect = btn.getBoundingClientRect();
-  var ripple = document.createElement('span');
-  ripple.className = 'ripple';
-  var size = Math.max(rect.width, rect.height);
-  ripple.style.width = ripple.style.height = size + 'px';
-  ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
-  ripple.style.top = (e.clientY - rect.top - size/2) + 'px';
-  btn.appendChild(ripple);
-  setTimeout(function() { ripple.remove(); }, 600);
-});
-
-// ============================================================
-// CONFETTI
-// ============================================================
-function lanzarConfetti() {
-  var container = document.getElementById('confetti');
-  var colores = ['#a3ff12', '#8be60f', '#ffffff', '#60a5fa', '#fbbf24'];
-  for (var i = 0; i < 60; i++) {
-    var piece = document.createElement('div');
-    piece.className = 'confetti-piece';
-    piece.style.left = Math.random() * 100 + '%';
-    piece.style.background = colores[Math.floor(Math.random() * colores.length)];
-    piece.style.animationDelay = Math.random() * 0.5 + 's';
-    piece.style.animationDuration = (2 + Math.random() * 1.5) + 's';
-    piece.style.width = (6 + Math.random() * 8) + 'px';
-    piece.style.height = (6 + Math.random() * 8) + 'px';
-    container.appendChild(piece);
-    setTimeout(function(p) { return function() { p.remove(); }; }(piece), 4000);
-  }
+function setBackendStatus(status, text) {
+  var el = document.getElementById('backendStatus');
+  el.className = 'backend-status ' + status;
+  document.getElementById('backendText').textContent = text;
 }
 
-// ============================================================
-// UTILIDADES
-// ============================================================
 function limpiarCI(v) { return String(v || '').replace(/\D/g, ''); }
 function iniciales(n) {
   return String(n || '').split(' ').filter(function(w) { return w.length > 0; })
@@ -610,7 +606,97 @@ function cambiarPaso(n) {
   });
   var header = document.getElementById('header');
   header.classList.add('active-glow');
-  setTimeout(function() { header.classList.remove('active-glow'); }, 800);
+  setTimeout(function() { header.classList.remove('active-glow'); }, 700);
+}
+
+// ============================================================
+// CACHE DE ESTUDIANTES (OPTIMIZACIÓN DE VELOCIDAD)
+// ============================================================
+async function getEstudiantes(forceRefresh) {
+  var now = Date.now();
+
+  // Devolver desde caché si es válido
+  if (!forceRefresh && estudiantesCache && (now - estudiantesCacheTime) < CACHE_TTL) {
+    console.log('⚡ Cache HIT - Estudiantes desde memoria:', estudiantesCache.length);
+    return estudiantesCache;
+  }
+
+  // Si ya hay una petición en curso, esperarla (evitar duplicados)
+  if (estudiantesCacheFetching) {
+    console.log('⏳ Esperando petición en curso...');
+    return estudiantesCacheFetching;
+  }
+
+  // Nueva petición
+  console.log('🌐 Cache MISS - Obteniendo desde backend...');
+  estudiantesCacheFetching = fetch(API_URL + '?action=getStudents')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (Array.isArray(data) && data.length > 0) {
+        estudiantesCache = data;
+        estudiantesCacheTime = Date.now();
+        console.log('✅ Estudiantes cacheados:', data.length);
+      }
+      estudiantesCacheFetching = null;
+      return data;
+    })
+    .catch(function(err) {
+      estudiantesCacheFetching = null;
+      // Si falla, devolver caché viejo si existe
+      if (estudiantesCache) {
+        console.warn('⚠️ Error, usando caché viejo');
+        return estudiantesCache;
+      }
+      throw err;
+    });
+
+  return estudiantesCacheFetching;
+}
+
+// Precargar estudiantes en segundo plano
+function precargarEstudiantes() {
+  getEstudiantes(false).then(function(data) {
+    setBackendStatus('online', data.length + ' registros');
+  }).catch(function() {
+    setBackendStatus('offline', 'Sin conexión');
+  });
+}
+
+// ============================================================
+// RIPPLE
+// ============================================================
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('.btn, .btn2, .tecla');
+  if (!btn) return;
+  var rect = btn.getBoundingClientRect();
+  var ripple = document.createElement('span');
+  ripple.className = 'ripple';
+  var size = Math.max(rect.width, rect.height);
+  ripple.style.width = ripple.style.height = size + 'px';
+  ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
+  ripple.style.top = (e.clientY - rect.top - size/2) + 'px';
+  btn.appendChild(ripple);
+  setTimeout(function() { ripple.remove(); }, 500);
+});
+
+// ============================================================
+// CONFETTI
+// ============================================================
+function lanzarConfetti() {
+  var container = document.getElementById('confetti');
+  var colores = ['#a3ff12', '#8be60f', '#ffffff', '#60a5fa', '#fbbf24'];
+  for (var i = 0; i < 50; i++) {
+    var piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.background = colores[Math.floor(Math.random() * colores.length)];
+    piece.style.animationDelay = Math.random() * 0.4 + 's';
+    piece.style.animationDuration = (1.8 + Math.random() * 1.2) + 's';
+    piece.style.width = (6 + Math.random() * 8) + 'px';
+    piece.style.height = (6 + Math.random() * 8) + 'px';
+    container.appendChild(piece);
+    setTimeout(function(p) { return function() { p.remove(); }; }(piece), 3500);
+  }
 }
 
 // ============================================================
@@ -618,12 +704,11 @@ function cambiarPaso(n) {
 // ============================================================
 var tutorialSteps = [
   { icon: '👋', title: 'Bienvenido al Portal', text: 'Vamos a registrar la asistencia de forma rápida y segura.' },
-  { icon: '📷', title: 'Escanea el QR', text: 'Muestra el código QR del estudiante frente a la cámara. El sistema lo identificará automáticamente.' },
-  { icon: '📸', title: 'Toma la foto', text: 'El sistema abrirá la cámara frontal para tomar una selfie del estudiante como respaldo.' },
-  { icon: '✅', title: 'Confirma y listo', text: 'Verifica los datos y confirma. La asistencia quedará guardada al instante con fecha y hora.' }
+  { icon: '📷', title: 'Escanea el QR', text: 'Muestra el código QR del estudiante frente a la cámara. Puedes cambiar entre cámaras con el botón azul.' },
+  { icon: '📸', title: 'Toma la foto', text: 'El sistema abrirá la cámara frontal para tomar una selfie como respaldo.' },
+  { icon: '✅', title: 'Confirma y listo', text: 'Verifica los datos y confirma. La asistencia queda guardada al instante.' }
 ];
 var tutorialIndex = 0;
-
 function mostrarTutorialPaso(idx) {
   var step = tutorialSteps[idx];
   document.getElementById('tut-icon').textContent = step.icon;
@@ -632,8 +717,7 @@ function mostrarTutorialPaso(idx) {
   document.querySelectorAll('.tutorial-dot').forEach(function(d, i) {
     d.classList.toggle('active', i === idx);
   });
-  var btn = document.getElementById('tut-next');
-  btn.textContent = idx === tutorialSteps.length - 1 ? '¡Empezar! 🚀' : 'Siguiente →';
+  document.getElementById('tut-next').textContent = idx === tutorialSteps.length - 1 ? '¡Empezar! 🚀' : 'Siguiente →';
 }
 function cerrarTutorial() {
   document.getElementById('tutorial').classList.add('hidden');
@@ -651,80 +735,42 @@ window.addEventListener('load', function() {
       setTimeout(function() {
         document.getElementById('tutorial').classList.remove('hidden');
         mostrarTutorialPaso(0);
-      }, 400);
+      }, 300);
     }
-  }, 2400);
+    // Precargar estudiantes apenas arranca
+    precargarEstudiantes();
+  }, 1800);
 });
 
 // ============================================================
-// TECLADO NUMÉRICO
+// DETECCIÓN DE CÁMARAS
 // ============================================================
-function abrirTeclado() {
-  document.getElementById('vista-normal').style.display = 'none';
-  document.getElementById('vista-teclado').classList.add('activo');
-  tecladoValor = '';
-  actualizarDisplayTeclado();
-  sonidoTeclaOk();
-  vib(30);
-}
+async function detectarCamaras() {
+  try {
+    // Pedir permiso primero con una petición temporal
+    var tempStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    tempStream.getTracks().forEach(function(t) { t.stop(); });
 
-function cerrarTeclado() {
-  document.getElementById('vista-teclado').classList.remove('activo');
-  document.getElementById('vista-normal').style.display = 'flex';
-  tecladoValor = '';
-  vib(20);
-}
+    var devices = await navigator.mediaDevices.enumerateDevices();
+    camarasDisponibles = devices.filter(function(d) { return d.kind === 'videoinput'; });
 
-function actualizarDisplayTeclado() {
-  var display = document.getElementById('teclado-display');
-  var valor = document.getElementById('teclado-valor');
-  if (tecladoValor.length === 0) {
-    valor.textContent = 'Ingresa el número...';
-    valor.className = 'teclado-display-value placeholder';
-    display.classList.remove('activo');
-  } else {
-    valor.textContent = tecladoValor;
-    valor.className = 'teclado-display-value tiene-datos';
-    display.classList.add('activo');
-  }
-  // Habilitar/deshabilitar botón OK
-  var okBtn = document.querySelector('.tecla-ok');
-  if (okBtn) okBtn.disabled = tecladoValor.length < 6;
-}
+    console.log('📷 Cámaras detectadas:', camarasDisponibles.length);
+    camarasDisponibles.forEach(function(c, i) {
+      console.log('  ' + i + ': ' + (c.label || 'Cámara ' + (i + 1)));
+    });
 
-function presionarTecla(key) {
-  if (key === 'del') {
-    tecladoValor = tecladoValor.slice(0, -1);
-    sonidoTeclaDel();
-    vib(15);
-    actualizarDisplayTeclado();
-    return;
-  }
-  if (key === 'ok') {
-    if (tecladoValor.length < 6) {
-      notif('Ingresa al menos 6 dígitos', 'error');
-      return;
+    // Restaurar preferencia guardada
+    var pref = localStorage.getItem(PREFERRED_CAMERA_KEY);
+    if (pref) {
+      var idx = camarasDisponibles.findIndex(function(c) { return c.deviceId === pref; });
+      if (idx !== -1) camaraIndexActual = idx;
     }
-    sonidoTeclaOk();
-    vib([40, 30, 40]);
-    var ci = tecladoValor;
-    cerrarTeclado();
-    setTimeout(function() { procesarCI(ci); }, 250);
-    return;
-  }
-  // Número
-  if (tecladoValor.length >= 11) return; // límite razonable
-  tecladoValor += key;
-  sonidoTecla();
-  vib(15);
-  actualizarDisplayTeclado();
-}
 
-function limpiarTeclado() {
-  tecladoValor = '';
-  sonidoTeclaDel();
-  vib(20);
-  actualizarDisplayTeclado();
+    return camarasDisponibles;
+  } catch (err) {
+    console.warn('No se pudieron detectar cámaras:', err);
+    return [];
+  }
 }
 
 // ============================================================
@@ -742,11 +788,55 @@ async function iniciarEscaner() {
 
   document.getElementById('scanner-container').style.display = 'flex';
 
+  // Detectar cámaras (solo la primera vez)
+  if (camarasDisponibles.length === 0) {
+    await detectarCamaras();
+  }
+
+  // Mostrar botón de cambio de cámara si hay más de una
+  var switchBtn = document.getElementById('btn-cambiar-camara');
+  var badge = document.getElementById('camera-badge');
+  if (camarasDisponibles.length > 1) {
+    switchBtn.classList.remove('hidden');
+    badge.classList.remove('hidden');
+  } else {
+    switchBtn.classList.add('hidden');
+    badge.classList.add('hidden');
+  }
+
+  actualizarBadgeCamara();
+  await iniciarCamaraQR();
+}
+
+async function iniciarCamaraQR() {
+  // Detener escáner anterior si existe
+  if (qrScanner && escanerActivo) {
+    try { await qrScanner.stop(); await qrScanner.clear(); } catch(e) {}
+    qrScanner = null;
+    escanerActivo = false;
+  }
+
   try {
     qrScanner = new Html5Qrcode('reader');
+
+    // Configuración de cámara específica (si hay varias)
+    var cameraConfig;
+    if (camarasDisponibles.length > 0) {
+      cameraConfig = { deviceId: { exact: camarasDisponibles[camaraIndexActual].deviceId } };
+    } else {
+      cameraConfig = { facingMode: 'environment' };
+    }
+
     await qrScanner.start(
-      { facingMode: 'environment' },
-      { fps: 10, qrbox: { width: 220, height: 220 } },
+      cameraConfig,
+      {
+        fps: 15,                    // Más FPS = detección más rápida
+        qrbox: { width: 220, height: 220 },
+        aspectRatio: 1.0,
+        experimentalFeatures: {
+          useBarCodeDetectorIfSupported: true  // Usa API nativa si está disponible (mucho más rápido)
+        }
+      },
       function(texto) {
         if (escaneando) return;
         escaneando = true;
@@ -758,6 +848,7 @@ async function iniciarEscaner() {
       function() {}
     );
     escanerActivo = true;
+    console.log('✅ Escáner iniciado en cámara: ' + camaraIndexActual);
   } catch (err) {
     escanerActivo = false;
     document.getElementById('progress1').style.width = '0%';
@@ -769,6 +860,47 @@ async function iniciarEscaner() {
   }
 }
 
+function actualizarBadgeCamara() {
+  var badge = document.getElementById('camera-badge');
+  var cam = camarasDisponibles[camaraIndexActual];
+  if (!cam) {
+    badge.textContent = 'Automática';
+    return;
+  }
+  var label = cam.label || ('Cámara ' + (camaraIndexActual + 1));
+  // Detectar si es frontal o trasera por el label
+  var labelLower = label.toLowerCase();
+  if (labelLower.includes('front') || labelLower.includes('user') || labelLower.includes('frontal')) {
+    badge.textContent = '👤 Frontal';
+  } else if (labelLower.includes('back') || labelLower.includes('rear') || labelLower.includes('environment') || labelLower.includes('trasera')) {
+    badge.textContent = '📷 Trasera';
+  } else {
+    badge.textContent = '📷 Cam ' + (camaraIndexActual + 1);
+  }
+}
+
+async function cambiarCamara() {
+  if (cambiandoCamara || camarasDisponibles.length < 2) return;
+  cambiandoCamara = true;
+
+  var btn = document.getElementById('btn-cambiar-camara');
+  btn.classList.add('switching');
+  sonidoCambioCamara();
+  vib(30);
+
+  camaraIndexActual = (camaraIndexActual + 1) % camarasDisponibles.length;
+  localStorage.setItem(PREFERRED_CAMERA_KEY, camarasDisponibles[camaraIndexActual].deviceId);
+  actualizarBadgeCamara();
+
+  // Reiniciar escáner con la nueva cámara
+  await iniciarCamaraQR();
+
+  setTimeout(function() {
+    btn.classList.remove('switching');
+    cambiandoCamara = false;
+  }, 600);
+}
+
 async function detenerEscaner(mantener) {
   if (qrScanner && escanerActivo) {
     try { await qrScanner.stop(); await qrScanner.clear(); } catch(e) {}
@@ -778,6 +910,8 @@ async function detenerEscaner(mantener) {
     document.getElementById('scanner-container').style.display = 'none';
     document.getElementById('placeholder').classList.remove('hidden');
     document.getElementById('progress1').style.width = '0%';
+    document.getElementById('btn-cambiar-camara').classList.add('hidden');
+    document.getElementById('camera-badge').classList.add('hidden');
   }
 }
 
@@ -789,7 +923,7 @@ function mostrarErrorCamara(msg) {
 }
 
 // ============================================================
-// PROCESAR CI
+// PROCESAR C.I. (OPTIMIZADO CON CACHÉ)
 // ============================================================
 async function procesarCI(texto) {
   if (!texto) { escaneando = false; return; }
@@ -800,13 +934,12 @@ async function procesarCI(texto) {
     irAPasoEscanear();
     return;
   }
+
   console.log('🔍 Buscando CI:', ci);
-  notif('Buscando estudiante...', 'info');
+  var t0 = performance.now();
 
   try {
-    var res = await fetch(API_URL + '?action=getStudents');
-    var estudiantes = await res.json();
-    console.log('📋 Recibidos:', estudiantes.length);
+    var estudiantes = await getEstudiantes(false);
 
     if (!Array.isArray(estudiantes) || !estudiantes.length) {
       notif('Sin estudiantes en la base', 'error');
@@ -818,6 +951,9 @@ async function procesarCI(texto) {
     var est = estudiantes.find(function(e) {
       return limpiarCI(e.ci) === ci || String(e.ciNormalizado) === ci;
     });
+
+    var t1 = performance.now();
+    console.log('⚡ Búsqueda completada en ' + Math.round(t1 - t0) + 'ms');
 
     if (!est) {
       notif('Estudiante no encontrado: ' + ci, 'error');
@@ -853,6 +989,8 @@ function irAPasoEscanear() {
   cambiarPaso(1);
   document.getElementById('headerTitle').textContent = 'Registro de Asistencia';
   document.getElementById('headerSub').textContent = 'Escanea el código QR del estudiante';
+  // Refrescar caché silenciosamente en segundo plano
+  precargarEstudiantes();
 }
 
 function irAPasoFoto() {
@@ -880,8 +1018,8 @@ function irAPasoFoto() {
   setTimeout(function() {
     var av = document.getElementById('iniciales');
     av.classList.add('pulse');
-    setTimeout(function() { av.classList.remove('pulse'); }, 800);
-  }, 200);
+    setTimeout(function() { av.classList.remove('pulse'); }, 700);
+  }, 150);
 }
 
 function irAPasoConfirmacion(fechaTexto) {
@@ -899,7 +1037,70 @@ function irAPasoConfirmacion(fechaTexto) {
 }
 
 // ============================================================
-// CÁMARA FOTO
+// TECLADO
+// ============================================================
+function abrirTeclado() {
+  document.getElementById('vista-normal').style.display = 'none';
+  document.getElementById('vista-teclado').classList.add('activo');
+  tecladoValor = '';
+  actualizarDisplayTeclado();
+  sonidoTeclaOk();
+  vib(25);
+}
+
+function cerrarTeclado() {
+  document.getElementById('vista-teclado').classList.remove('activo');
+  document.getElementById('vista-normal').style.display = 'flex';
+  tecladoValor = '';
+}
+
+function actualizarDisplayTeclado() {
+  var display = document.getElementById('teclado-display');
+  var valor = document.getElementById('teclado-valor');
+  if (tecladoValor.length === 0) {
+    valor.textContent = 'Ingresa el número...';
+    valor.className = 'teclado-display-value placeholder';
+    display.classList.remove('activo');
+  } else {
+    valor.textContent = tecladoValor;
+    valor.className = 'teclado-display-value tiene-datos';
+    display.classList.add('activo');
+  }
+  var okBtn = document.querySelector('.tecla-ok');
+  if (okBtn) okBtn.disabled = tecladoValor.length < 6;
+}
+
+function presionarTecla(key) {
+  if (key === 'del') {
+    tecladoValor = tecladoValor.slice(0, -1);
+    sonidoTeclaDel(); vib(12);
+    actualizarDisplayTeclado();
+    return;
+  }
+  if (key === 'ok') {
+    if (tecladoValor.length < 6) { notif('Ingresa al menos 6 dígitos', 'error'); return; }
+    sonidoTeclaOk();
+    vib([40, 30, 40]);
+    var ci = tecladoValor;
+    cerrarTeclado();
+    setTimeout(function() { procesarCI(ci); }, 200);
+    return;
+  }
+  if (tecladoValor.length >= 11) return;
+  tecladoValor += key;
+  sonidoTecla(); vib(12);
+  actualizarDisplayTeclado();
+}
+
+function limpiarTeclado() {
+  tecladoValor = '';
+  sonidoTeclaDel();
+  vib(15);
+  actualizarDisplayTeclado();
+}
+
+// ============================================================
+// CÁMARA FOTO (FRONTAL FORZADA)
 // ============================================================
 async function iniciarCamara() {
   document.getElementById('progress2').style.width = '40%';
@@ -962,7 +1163,7 @@ async function capturarFoto() {
     numEl.classList.add('countdown-num');
     sonidoCountdown(i);
     vib(50);
-    await sleep(900);
+    await sleep(800);
   }
 
   countdown.classList.add('hidden');
@@ -985,7 +1186,7 @@ async function capturarFoto() {
   preview.style.display = 'block';
   video.classList.remove('active');
 
-  setTimeout(function() { flash.classList.remove('fire'); }, 500);
+  setTimeout(function() { flash.classList.remove('fire'); }, 400);
 
   document.getElementById('btn-capturar').classList.add('hidden');
   document.getElementById('btn-capturar').disabled = false;
@@ -1082,17 +1283,12 @@ async function registrarAsistencia() {
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
   console.log('🚀 Portal QR iniciado');
-  console.log('📡 API:', API_URL);
-
-  fetch(API_URL + '?action=ping')
-    .then(function(r) { return r.json(); })
-    .then(function(d) { console.log('✅ API OK'); })
-    .catch(function(e) { console.error('❌ API no responde'); });
 
   // Escáner
   document.getElementById('btn-iniciar-escaner').addEventListener('click', iniciarEscaner);
   document.getElementById('btn-detener-escaner').addEventListener('click', function() { detenerEscaner(); });
   document.getElementById('btn-reintentar').addEventListener('click', iniciarEscaner);
+  document.getElementById('btn-cambiar-camara').addEventListener('click', cambiarCamara);
 
   // Teclado
   document.getElementById('btn-abrir-teclado').addEventListener('click', abrirTeclado);
@@ -1100,27 +1296,16 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('btn-limpiar-teclado').addEventListener('click', limpiarTeclado);
   document.querySelectorAll('.tecla').forEach(function(btn) {
     btn.addEventListener('click', function() {
-      var key = this.getAttribute('data-key');
-      presionarTecla(key);
+      presionarTecla(this.getAttribute('data-key'));
     });
   });
 
-  // Teclado físico (por si hay uno conectado)
   document.addEventListener('keydown', function(e) {
     if (!document.getElementById('vista-teclado').classList.contains('activo')) return;
-    if (e.key >= '0' && e.key <= '9') {
-      presionarTecla(e.key);
-      e.preventDefault();
-    } else if (e.key === 'Backspace') {
-      presionarTecla('del');
-      e.preventDefault();
-    } else if (e.key === 'Enter') {
-      presionarTecla('ok');
-      e.preventDefault();
-    } else if (e.key === 'Escape') {
-      cerrarTeclado();
-      e.preventDefault();
-    }
+    if (e.key >= '0' && e.key <= '9') { presionarTecla(e.key); e.preventDefault(); }
+    else if (e.key === 'Backspace') { presionarTecla('del'); e.preventDefault(); }
+    else if (e.key === 'Enter') { presionarTecla('ok'); e.preventDefault(); }
+    else if (e.key === 'Escape') { cerrarTeclado(); e.preventDefault(); }
   });
 
   // Cámara foto
@@ -1142,6 +1327,13 @@ document.addEventListener('DOMContentLoaded', function() {
     else mostrarTutorialPaso(tutorialIndex);
   });
   document.getElementById('tut-skip').addEventListener('click', cerrarTutorial);
+
+  // Detectar cuando el móvil gira para reajustar el escáner
+  window.addEventListener('orientationchange', function() {
+    if (escanerActivo) {
+      setTimeout(function() { iniciarCamaraQR(); }, 400);
+    }
+  });
 });
 
 window.addEventListener('beforeunload', function() {
