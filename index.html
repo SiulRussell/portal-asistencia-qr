@@ -4,20 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0f1115">
-<title>Asistencia QR</title>
+<title>Portal de Asistencia QR</title>
 
-<!-- Preconnect para acelerar peticiones -->
-<link rel="preconnect" href="https://script.google.com" crossorigin>
-<link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
-<link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
-<link rel="preconnect" href="https://unpkg.com" crossorigin>
-<link rel="dns-prefetch" href="https://drive.google.com">
-
+<!-- PWA -->
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Asistencia">
 <meta name="application-name" content="Asistencia">
+<meta name="msapplication-TileColor" content="#0f1115">
 <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=QR&background=a3ff12&color=000&size=192&bold=true&format=png">
 <link rel="icon" type="image/png" href="https://ui-avatars.com/api/?name=QR&background=a3ff12&color=000&size=192&bold=true&format=png">
 <link rel="manifest" href="./manifest.json">
@@ -26,447 +21,197 @@
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0;padding:0;height:100%;overflow:hidden;overscroll-behavior:none;-webkit-user-select:none;user-select:none}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f1115;color:#e5e7eb}
-
-  /* ============================================================
-     LAYOUT GENERAL
-     ============================================================ */
-  .app{
-    display:flex;flex-direction:column;
-    height:100vh;height:100dvh;
-    padding:8px;gap:8px;
-    padding-top:calc(8px + env(safe-area-inset-top));
-    padding-bottom:calc(8px + env(safe-area-inset-bottom));
-    padding-left:calc(8px + env(safe-area-inset-left));
-    padding-right:calc(8px + env(safe-area-inset-right));
-  }
-
-  /* TOPBAR */
-  .topbar{
-    display:flex;align-items:center;justify-content:space-between;
-    padding:7px 12px;
-    background:#181a20;border:1px solid #1f2937;
-    border-radius:12px;flex-shrink:0;gap:12px;
-  }
-  .brand{display:flex;align-items:center;gap:9px;min-width:0}
-  .brand-icon{
-    width:30px;height:30px;border-radius:8px;
-    background:#a3ff12;color:#000;
-    font-weight:800;font-size:13px;
-    display:flex;align-items:center;justify-content:center;
-    flex-shrink:0;
-  }
-  .brand-text{min-width:0;overflow:hidden}
-  .brand h1{font-size:13px;font-weight:700;color:#fff;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .brand p{font-size:10px;color:#6b7280;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-  .topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
-  .status{
-    display:flex;align-items:center;gap:5px;
-    font-size:10px;font-weight:600;
-    padding:4px 9px;border-radius:20px;
-    background:#0f1115;border:1px solid #1f2937;color:#6b7280;
-    transition:all .3s;white-space:nowrap;
-  }
-  .status .dot{width:6px;height:6px;border-radius:50%;background:#6b7280;flex-shrink:0}
-  .status.online{border-color:rgba(163,255,18,.3);color:#a3ff12}
-  .status.online .dot{background:#a3ff12}
-  .status.offline{border-color:rgba(248,113,113,.3);color:#f87171}
-  .status.offline .dot{background:#f87171}
-
-  .steps{display:flex;gap:4px;align-items:center}
-  .step{width:18px;height:3px;border-radius:2px;background:#1f2937;transition:all .3s}
-  .step.active{background:#a3ff12;width:28px}
-  .step.done{background:rgba(163,255,18,.35)}
-
-  /* STAGE */
-  .stage{flex:1;min-height:0;display:flex;position:relative}
-
-  .paso{display:none;width:100%;gap:8px;min-height:0;min-width:0}
-  .paso.active{display:grid}
-
-  @media (orientation: landscape) {
-    .paso.active{
-      grid-template-columns: minmax(0, 1fr) minmax(0, 240px);
-      grid-template-rows: 1fr;
-    }
-  }
-
-  @media (orientation: portrait) {
-    .paso.active{
-      grid-template-columns: 1fr;
-      grid-template-rows: minmax(0, 1.3fr) minmax(0, 1fr);
-    }
-  }
-
-  /* ============================================================
-     PANEL DE CÁMARA (ocupa TODO el espacio disponible)
-     ============================================================ */
-  .media-panel{
-    position:relative;
-    min-height:0;min-width:0;
-    background:#000;
-    border-radius:14px;
-    overflow:hidden;
-    border:1px solid #1f2937;
-  }
-
-  /* El video QR usa TODO el espacio */
-  #reader{
-    position:absolute;inset:0;
-    width:100%;height:100%;
-  }
-  #reader video{
-    width:100% !important;
-    height:100% !important;
-    object-fit:cover !important;
-    display:block !important;
-    border-radius:0 !important;
-  }
-
-  /* Ocultar overlays internos de html5-qrcode */
-  #reader__dashboard{display:none !important}
-  #reader__scan_region > *:not(video){display:none !important}
-  .qr-shaded-region,
-  [class*="qr-shaded"],
-  [class*="shaded-region"],
-  #reader__scan_region > div,
-  #reader__scan_region img,
-  #reader__scan_region svg{
-    display:none !important;
-    border:none !important;
-    box-shadow:none !important;
-    background:transparent !important;
-  }
-
-  /* Video selfie */
-  #video{
-    position:absolute;inset:0;
-    width:100%;height:100%;
-    object-fit:cover;display:none;
-    transform:scaleX(-1);
-  }
-  #video.active{display:block}
-
-  /* Foto capturada */
-  #foto-preview{
-    position:absolute;inset:0;
-    width:100%;height:100%;
-    object-fit:cover;display:none;
-    transform:scaleX(-1);
-  }
-
-  /* Placeholder */
-  .placeholder{
-    position:absolute;inset:0;
-    display:flex;flex-direction:column;
-    align-items:center;justify-content:center;
-    text-align:center;padding:20px;
-    background:#0a0c10;gap:12px;
-  }
-  .placeholder-icon{
-    width:60px;height:60px;border-radius:16px;
-    background:rgba(163,255,18,.08);
-    border:1px solid rgba(163,255,18,.2);
-    display:flex;align-items:center;justify-content:center;
-    font-size:26px;
-  }
-  .placeholder-text{color:#9ca3af;font-size:12px;margin:0;line-height:1.5;max-width:240px}
-  .placeholder-btn{
-    background:#a3ff12;color:#000;
-    font-weight:700;font-size:12px;
-    padding:10px 20px;border-radius:9px;border:none;
-    cursor:pointer;white-space:nowrap;
-  }
-  .placeholder-btn:active{opacity:.85}
-
-  /* ============================================================
-     BOTONES FLOTANTES EN LA CÁMARA (iconos pequeños)
-     ============================================================ */
-  .cam-icon-btn{
-    position:absolute;
-    width:36px;height:36px;
-    border-radius:50%;
-    background:rgba(0,0,0,.7);
-    backdrop-filter:blur(8px);
-    border:1px solid rgba(255,255,255,.15);
-    color:#fff;
-    font-size:16px;
-    cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-    z-index:5;
-    padding:0;
-    transition:background .15s, transform .15s;
-  }
-  .cam-icon-btn:active{transform:scale(.9)}
-  .cam-icon-btn:hover{background:rgba(0,0,0,.85)}
-
-  /* Detener: esquina inferior izquierda */
-  #btnStop{
-    bottom:10px;left:10px;
-    color:#f87171;
-    border-color:rgba(248,113,113,.3);
-  }
-  #btnStop:active{background:rgba(248,113,113,.2)}
-
-  /* Cambiar cámara: esquina superior derecha */
-  #btnSwitchCam{
-    top:10px;right:10px;
-    color:#a3ff12;
-    border-color:rgba(163,255,18,.3);
-  }
-  #btnSwitchCam:active{background:rgba(163,255,18,.2)}
-
-  /* Countdown */
-  .countdown{
-    position:absolute;inset:0;
-    display:flex;align-items:center;justify-content:center;
-    background:rgba(0,0,0,.4);
-    color:#a3ff12;
-    font-size:110px;font-weight:900;
-    z-index:10;pointer-events:none;
-    font-variant-numeric:tabular-nums;
-  }
-
-  /* Botón capturar (overlay en la cámara) */
-  .capture-btn{
-    position:absolute;
-    bottom:14px;left:50%;
-    transform:translateX(-50%);
-    background:#a3ff12;color:#000;
-    font-weight:700;font-size:12px;
-    padding:11px 22px;
-    border-radius:22px;border:none;
-    cursor:pointer;z-index:5;
-    white-space:nowrap;
-    box-shadow:0 6px 20px rgba(0,0,0,.5);
-    display:flex;align-items:center;gap:6px;
-  }
-  .capture-btn:active{transform:translateX(-50%) scale(.95)}
-
-  /* ============================================================
-     PANEL LATERAL
-     ============================================================ */
-  .side-panel{
-    display:flex;flex-direction:column;
-    gap:8px;min-height:0;min-width:0;
-  }
-
-  .card{
-    background:#181a20;border:1px solid #1f2937;
-    border-radius:12px;padding:10px;
-  }
-
-  .btn{
-    background:#a3ff12;color:#000;
-    font-weight:700;font-size:12px;
-    padding:11px 14px;border-radius:9px;border:none;
-    cursor:pointer;width:100%;
-    display:flex;align-items:center;justify-content:center;gap:5px;
-    transition:opacity .15s;
-  }
-  .btn:active:not(:disabled){opacity:.85}
-  .btn:disabled{opacity:.5;cursor:not-allowed}
-
-  .btn-sec{
-    background:#1f2937;color:#e5e7eb;
-    font-weight:600;font-size:12px;
-    padding:11px 14px;border-radius:9px;
-    border:1px solid #374151;
-    cursor:pointer;width:100%;
-    display:flex;align-items:center;justify-content:center;gap:5px;
-    transition:background .15s;
-  }
-  .btn-sec:active{background:#374151}
-
-  /* Info del estudiante */
-  .student-card{display:flex;align-items:center;gap:9px}
-  .avatar{
-    width:36px;height:36px;border-radius:10px;
-    background:rgba(163,255,18,.1);
-    border:1px solid rgba(163,255,18,.25);
-    display:flex;align-items:center;justify-content:center;
-    color:#a3ff12;font-weight:700;font-size:12px;
-    flex-shrink:0;
-  }
-  .student-info{min-width:0;flex:1}
-  .student-name{
-    color:#fff;font-weight:600;font-size:12px;
-    margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  }
-  .student-meta{color:#9ca3af;font-size:10px;margin:1px 0 0}
-
-  /* Instrucciones */
-  .instructions{display:flex;flex-direction:column;gap:8px;overflow-y:auto;min-height:0}
-  .instr-item{display:flex;gap:8px;align-items:flex-start}
-  .instr-num{
-    width:18px;height:18px;border-radius:50%;
-    background:#a3ff12;color:#000;
-    font-weight:800;font-size:9px;
-    display:flex;align-items:center;justify-content:center;
-    flex-shrink:0;margin-top:1px;
-  }
-  .instr-text{color:#9ca3af;font-size:10px;line-height:1.4;margin:0}
-
-  /* ============================================================
-     TECLADO
-     ============================================================ */
-  #vista-normal{display:flex;flex-direction:column;gap:8px;flex:1;min-height:0}
-  #vista-teclado{display:none;flex-direction:column;gap:6px;flex:1;min-height:0}
-  #vista-teclado.active{display:flex}
-
-  .kbd-display{
-    background:#0f1115;border:2px solid #1f2937;
-    border-radius:10px;padding:8px 12px;
-    flex-shrink:0;transition:border-color .2s;
-  }
-  .kbd-display.active{border-color:#a3ff12}
-  .kbd-label{
-    font-size:9px;color:#6b7280;
-    text-transform:uppercase;letter-spacing:.5px;
-    font-weight:700;margin-bottom:2px;
-  }
-  .kbd-value{
-    font-size:20px;font-weight:700;color:#374151;
-    letter-spacing:1.5px;min-height:24px;
-    word-break:break-all;line-height:1.2;
-  }
-  .kbd-value.filled{color:#a3ff12}
-
-  .kbd-grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    grid-template-rows:repeat(4,1fr);
-    gap:5px;flex:1;min-height:0;
-  }
-  .key{
-    background:#1f2937;color:#e5e7eb;
-    border:1px solid #374151;
-    border-radius:9px;
-    font-size:19px;font-weight:700;
-    cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-    min-height:0;padding:0;
-    transition:background .1s;
-  }
-  .key:active{background:#374151}
-  .key-num{font-size:21px}
-  .key-del{background:#251818;color:#f87171;border-color:#3a2020}
-  .key-del:active{background:#3a2020}
-  .key-ok{background:#a3ff12;color:#000;border-color:#8be60f;font-size:21px}
-  .key-ok:active{background:#8be60f}
-  .key-ok:disabled{opacity:.35;cursor:not-allowed}
-
-  .kbd-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px;flex-shrink:0}
-  .kbd-actions button{padding:8px;font-size:11px;border-radius:8px}
-
-  /* ============================================================
-     NOTIFICACIONES
-     ============================================================ */
-  #notif{
-    position:fixed;
-    bottom:calc(16px + env(safe-area-inset-bottom));
-    left:50%;transform:translateX(-50%) translateY(20px);
-    padding:11px 18px;border-radius:11px;
-    background:#181a20;border:1px solid #1f2937;
-    font-size:12px;font-weight:500;
-    box-shadow:0 12px 40px rgba(0,0,0,.6);
-    opacity:0;transition:opacity .2s, transform .2s;
-    pointer-events:none;z-index:9999;
-    max-width:calc(100vw - 32px);
-    display:flex;align-items:center;gap:8px;
-  }
-  #notif.show{opacity:1;transform:translateX(-50%) translateY(0)}
-  #notif.ok{border-color:rgba(163,255,18,.5);color:#a3ff12}
-  #notif.err{border-color:rgba(248,113,113,.5);color:#f87171}
-  #notif.info{border-color:rgba(96,165,250,.5);color:#60a5fa}
-
-  .loader{
-    display:inline-block;width:13px;height:13px;
-    border:2px solid rgba(0,0,0,.2);
-    border-top-color:#000;
-    border-radius:50%;
-    animation:spin .7s linear infinite;
-    vertical-align:middle;
-  }
-  @keyframes spin{to{transform:rotate(360deg)}}
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;overscroll-behavior:none}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f1115;color:#e5e7eb;user-select:none;-webkit-user-select:none}
+  .neon{color:#a3ff12}
+  .hidden{display:none!important}
 
   /* SPLASH */
-  #splash{
-    position:fixed;inset:0;background:#0f1115;z-index:10000;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:18px;transition:opacity .3s;
-  }
-  #splash.hide{opacity:0;pointer-events:none}
-  .splash-logo{
-    width:70px;height:70px;border-radius:20px;
-    background:#a3ff12;color:#000;
-    font-weight:900;font-size:28px;
-    display:flex;align-items:center;justify-content:center;
-  }
-  .splash-title{color:#fff;font-size:14px;font-weight:600}
+  #splash{position:fixed;inset:0;background:#0f1115;z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s ease,visibility .5s}
+  #splash.hide{opacity:0;visibility:hidden}
+  .splash-logo{width:100px;height:100px;border-radius:50%;background:#a3ff12;color:#000;font-weight:900;font-size:38px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 60px rgba(163,255,18,.6);animation:logoPulse 1.5s ease-in-out infinite}
+  @keyframes logoPulse{0%,100%{transform:scale(1);box-shadow:0 0 60px rgba(163,255,18,.6)}50%{transform:scale(1.08);box-shadow:0 0 90px rgba(163,255,18,.9)}}
+  .splash-title{color:#fff;font-size:20px;font-weight:700;margin-top:24px;opacity:0;animation:fadeUp .5s ease .2s forwards}
+  .splash-sub{color:#9ca3af;font-size:13px;margin-top:6px;opacity:0;animation:fadeUp .5s ease .35s forwards}
+  .splash-bar{width:180px;height:3px;background:#1f2937;border-radius:2px;margin-top:32px;overflow:hidden;opacity:0;animation:fadeUp .5s ease .5s forwards}
+  .splash-bar-inner{height:100%;width:0;background:#a3ff12;border-radius:2px;animation:loadBar 1.2s ease .6s forwards}
+  @keyframes loadBar{0%{width:0}100%{width:100%}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
   /* TUTORIAL */
-  #tutorial{
-    position:fixed;inset:0;background:rgba(0,0,0,.9);
-    z-index:9000;display:flex;align-items:center;justify-content:center;
-    padding:20px;
-  }
-  #tutorial.hide{display:none}
-  .tut-card{
-    background:#181a20;border:1px solid #1f2937;
-    border-radius:16px;padding:22px;
-    max-width:380px;width:100%;text-align:center;
-  }
-  .tut-icon{font-size:42px;margin-bottom:10px}
-  .tut-title{color:#fff;font-size:16px;font-weight:700;margin:0 0 8px}
-  .tut-text{color:#9ca3af;font-size:12px;line-height:1.5;margin:0 0 14px}
-  .tut-dots{display:flex;gap:6px;justify-content:center;margin-bottom:14px}
-  .tut-dot{width:6px;height:6px;border-radius:50%;background:#374151}
-  .tut-dot.on{background:#a3ff12;width:18px;border-radius:3px}
-  .tut-skip{
-    background:transparent;border:none;color:#6b7280;
-    font-size:11px;padding:8px;cursor:pointer;width:100%;margin-top:4px;
+  #tutorial{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);animation:fadeIn .3s ease}
+  #tutorial.hidden{display:none}
+  .tutorial-card{background:#181a20;border:1px solid #1f2937;border-radius:20px;padding:28px;max-width:460px;width:100%;text-align:center;animation:popIn .3s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes popIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .tutorial-icon{font-size:64px;margin-bottom:16px;display:inline-block;animation:bounceIcon 1.2s ease-in-out infinite}
+  @keyframes bounceIcon{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .tutorial-dots{display:flex;gap:8px;justify-content:center;margin:20px 0}
+  .tutorial-dot{width:8px;height:8px;border-radius:50%;background:#374151;transition:all .3s}
+  .tutorial-dot.active{background:#a3ff12;width:24px;border-radius:4px}
+
+  /* APP LAYOUT */
+  .app{display:flex;flex-direction:column;height:100vh;height:100dvh;padding:10px;gap:10px;padding-top:calc(10px + env(safe-area-inset-top));padding-bottom:calc(10px + env(safe-area-inset-bottom));opacity:0;transition:opacity .4s ease}
+  .app.ready{opacity:1}
+
+  .header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#181a20;border:1px solid #1f2937;border-radius:14px;flex-shrink:0;transition:border-color .3s}
+  .header.active-glow{border-color:rgba(163,255,18,.4);box-shadow:0 0 24px rgba(163,255,18,.15)}
+  .header-logo{display:flex;align-items:center;gap:10px}
+  .header-logo-icon{width:36px;height:36px;border-radius:50%;background:#a3ff12;color:#000;font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(163,255,18,.35);transition:transform .3s}
+  .header h1{font-size:15px;font-weight:700;color:#fff;margin:0}
+  .header p{font-size:11px;color:#9ca3af;margin:0}
+
+  .backend-status{display:flex;align-items:center;gap:6px;font-size:10px;padding:4px 10px;border-radius:20px;background:#0f1115;border:1px solid #1f2937;transition:all .3s}
+  .backend-status .dot{width:8px;height:8px;border-radius:50%;background:#6b7280;transition:background .3s}
+  .backend-status.online .dot{background:#a3ff12;box-shadow:0 0 10px #a3ff12}
+  .backend-status.online{border-color:rgba(163,255,18,.3)}
+  .backend-status.offline .dot{background:#f87171}
+  .backend-status.offline{border-color:rgba(248,113,113,.3)}
+
+  .step-indicator{display:flex;gap:4px;align-items:center}
+  .step-dot{width:22px;height:4px;border-radius:2px;background:#1f2937;transition:all .4s cubic-bezier(.34,1.56,.64,1)}
+  .step-dot.active{background:#a3ff12;width:36px;box-shadow:0 0 12px rgba(163,255,18,.5)}
+  .step-dot.done{background:rgba(163,255,18,.4)}
+
+  .paso{flex:1;display:none;gap:10px;min-height:0}
+  .paso.activo{display:flex;animation:slideIn .3s ease}
+  @keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+  .col-izq{flex:1.3;display:flex;flex-direction:column;gap:10px;min-width:0}
+  .col-der{flex:1;display:flex;flex-direction:column;gap:10px;min-width:0;position:relative}
+
+  .card{background:#181a20;border:1px solid #1f2937;border-radius:14px;padding:12px;transition:border-color .3s}
+  .card-full{flex:1;display:flex;flex-direction:column;min-height:0}
+
+  /* Escáner */
+  .scanner-wrap{position:relative;flex:1;border-radius:12px;overflow:hidden;background:#000;min-height:0}
+  #reader{width:100%;height:100%}
+  #reader video{border-radius:12px;object-fit:cover}
+  .scan-line{position:absolute;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#a3ff12,transparent);box-shadow:0 0 20px #a3ff12;animation:scanMove 2s ease-in-out infinite;pointer-events:none}
+  @keyframes scanMove{0%{top:10%}50%{top:85%}100%{top:10%}}
+  .scan-corners::before,.scan-corners::after,.scan-corners>.corner-b::before,.scan-corners>.corner-b::after{content:'';position:absolute;width:24px;height:24px;border-color:#a3ff12;border-style:solid;pointer-events:none;z-index:3}
+  .scan-corners::before{top:12px;left:12px;border-width:3px 0 0 3px;border-radius:8px 0 0 0}
+  .scan-corners::after{top:12px;right:12px;border-width:3px 3px 0 0;border-radius:0 8px 0 0}
+  .scan-corners>.corner-b::before{bottom:12px;left:12px;border-width:0 0 3px 3px;border-radius:0 0 0 8px}
+  .scan-corners>.corner-b::after{bottom:12px;right:12px;border-width:0 3px 3px 0;border-radius:0 0 8px 0}
+
+  .camera-switcher{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:rgba(15,17,21,.85);backdrop-filter:blur(10px);border:1px solid rgba(163,255,18,.4);color:#a3ff12;font-weight:700;font-size:11px;padding:8px 14px;border-radius:20px;cursor:pointer;display:flex;align-items:center;gap:6px;z-index:5;transition:all .2s;box-shadow:0 4px 20px rgba(0,0,0,.5);white-space:nowrap;max-width:90%;overflow:hidden}
+  .camera-switcher:hover{background:rgba(163,255,18,.15);transform:translateX(-50%) scale(1.05)}
+  .camera-switcher:active{transform:translateX(-50%) scale(.95)}
+  .camera-switcher .icon{font-size:14px;display:inline-block;transition:transform .3s}
+  .camera-switcher.switching .icon{animation:rotateIcon .6s ease}
+  @keyframes rotateIcon{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+  .camera-switcher .label{font-size:10px;opacity:.85;font-weight:500;max-width:120px;overflow:hidden;text-overflow:ellipsis}
+
+  .camera-badge{position:absolute;top:12px;right:12px;background:rgba(15,17,21,.85);backdrop-filter:blur(10px);border:1px solid #1f2937;color:#9ca3af;font-size:10px;font-weight:600;padding:5px 10px;border-radius:12px;z-index:5;letter-spacing:.3px}
+
+  /* Cámara foto */
+  .camera-wrap{flex:1;position:relative;border-radius:14px;overflow:hidden;background:#000;border:2px solid #1f2937;min-height:0;transition:border-color .3s}
+  #video{width:100%;height:100%;object-fit:cover;display:none;transform:scaleX(-1)}
+  #video.active{display:block}
+  #foto-preview{width:100%;height:100%;object-fit:cover;display:none;transform:scaleX(-1)}
+  .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:8}
+  .flash.fire{animation:flashAnim .35s ease}
+  @keyframes flashAnim{0%{opacity:0}15%{opacity:.9}100%{opacity:0}}
+
+  .countdown{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);font-size:120px;font-weight:900;color:#a3ff12;text-shadow:0 0 40px rgba(163,255,18,.8);pointer-events:none;z-index:10}
+  .countdown-num{animation:countPop .75s ease}
+  @keyframes countPop{0%{transform:scale(.3);opacity:0}30%{transform:scale(1.2);opacity:1}70%{transform:scale(1);opacity:1}100%{transform:scale(1.5);opacity:0}}
+
+  /* Botones */
+  .btn{background:#a3ff12;color:#000;font-weight:700;padding:12px 16px;border-radius:12px;border:none;cursor:pointer;width:100%;font-size:14px;transition:all .15s;box-shadow:0 0 16px rgba(163,255,18,.2);position:relative;overflow:hidden}
+  .btn:hover:not(:disabled){background:#8be60f;transform:translateY(-1px)}
+  .btn:active:not(:disabled){transform:scale(.97)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn2{background:#1f2937;color:#e5e7eb;font-weight:600;padding:12px 16px;border-radius:12px;border:1px solid #374151;cursor:pointer;width:100%;font-size:14px;transition:all .15s;position:relative;overflow:hidden}
+  .btn2:hover{background:#374151}
+  .btn2:active{transform:scale(.97)}
+  .btn-sm{padding:8px 14px;font-size:12px}
+  .ripple{position:absolute;border-radius:50%;background:rgba(0,0,0,.3);transform:scale(0);animation:rippleAnim .5s ease-out;pointer-events:none}
+  @keyframes rippleAnim{to{transform:scale(4);opacity:0}}
+
+  .avatar{width:42px;height:42px;border-radius:50%;background:rgba(163,255,18,.15);border:1px solid rgba(163,255,18,.35);display:flex;align-items:center;justify-content:center;color:#a3ff12;font-weight:700;font-size:14px;flex-shrink:0;transition:all .3s}
+  .avatar.pulse{animation:avatarPulse .8s ease}
+  @keyframes avatarPulse{0%{transform:scale(1)}50%{transform:scale(1.15);box-shadow:0 0 30px rgba(163,255,18,.6)}100%{transform:scale(1)}}
+
+  #notif{position:fixed;bottom:12px;left:50%;transform:translateX(-50%) translateY(20px);padding:11px 20px;border-radius:10px;background:#181a20;border:1px solid #1f2937;font-size:13px;box-shadow:0 10px 40px rgba(0,0,0,.6);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);z-index:9999;max-width:90vw;text-align:center;pointer-events:none;bottom:calc(12px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:8px}
+  #notif.visible{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+  #notif.exito{border-color:#a3ff12;color:#a3ff12}
+  #notif.error{border-color:#f87171;color:#f87171}
+  #notif.info{border-color:#60a5fa;color:#60a5fa}
+
+  .loader{display:inline-block;width:14px;height:14px;border:2px solid #374151;border-top-color:#a3ff12;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  #confetti{position:fixed;inset:0;pointer-events:none;z-index:9500;overflow:hidden}
+  .confetti-piece{position:absolute;width:10px;height:10px;opacity:.9;animation:confettiFall 3s linear forwards}
+  @keyframes confettiFall{0%{transform:translateY(-10vh) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+  .progress-track{position:absolute;bottom:0;left:0;right:0;height:3px;background:#1f2937;overflow:hidden;border-radius:0 0 14px 14px}
+  .progress-bar{height:100%;background:#a3ff12;width:0;transition:width .3s ease;box-shadow:0 0 10px #a3ff12}
+
+  @keyframes pulseGlow{0%,100%{box-shadow:0 0 16px rgba(163,255,18,.2)}50%{box-shadow:0 0 30px rgba(163,255,18,.5)}}
+  .btn-pulse{animation:pulseGlow 2s ease-in-out infinite}
+
+  /* TECLADO */
+  #vista-normal{display:flex;flex-direction:column;gap:10px;flex:1;min-height:0}
+  #vista-teclado{display:none;flex-direction:column;gap:8px;flex:1;min-height:0;animation:slideIn .25s ease}
+  #vista-teclado.activo{display:flex}
+
+  .teclado-display{background:#0f1115;border:2px solid #1f2937;border-radius:12px;padding:10px 14px;text-align:right;transition:border-color .2s;flex-shrink:0}
+  .teclado-display.activo{border-color:#a3ff12;box-shadow:0 0 20px rgba(163,255,18,.15)}
+  .teclado-display-label{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;text-align:left;margin-bottom:2px}
+  .teclado-display-value{font-size:22px;font-weight:700;color:#fff;min-height:28px;letter-spacing:1px;word-break:break-all;transition:color .2s}
+  .teclado-display-value.placeholder{color:#374151;font-size:14px;letter-spacing:0;font-weight:400}
+  .teclado-display-value.tiene-datos{color:#a3ff12}
+
+  .teclado-grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr);gap:6px;flex:1;min-height:0}
+  .tecla{background:#1f2937;color:#e5e7eb;border:1px solid #374151;border-radius:12px;font-size:22px;font-weight:700;cursor:pointer;transition:all .1s;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;user-select:none;min-height:0;padding:0}
+  .tecla:active{background:#374151;transform:scale(.94)}
+  .tecla.tecla-num{font-size:24px}
+  .tecla.tecla-borrar{background:#2a1f1f;color:#f87171;border-color:#5a2a2a;font-size:20px}
+  .tecla.tecla-ok{background:#a3ff12;color:#000;border-color:#8be60f;font-size:24px;box-shadow:0 0 12px rgba(163,255,18,.4)}
+  .tecla.tecla-ok:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+
+  .teclado-acciones{display:grid;grid-template-columns:1fr 1fr;gap:6px;flex-shrink:0}
+  .teclado-acciones .btn2{padding:10px 8px;font-size:12px;border-radius:10px}
+
+  /* PORTRAIT */
+  @media (orientation: portrait) {
+    .paso.activo{flex-direction:column}
+    .col-izq, .col-der{flex:1}
+    #reader{min-height:280px}
+    .camera-wrap{min-height:320px}
+    .teclado-grid{min-height:280px}
   }
 
-  /* MOBILE LANDSCAPE compacto */
+  /* MOBILE LANDSCAPE */
   @media (orientation: landscape) and (max-height: 500px) {
-    .app{padding:6px;gap:6px}
-    .topbar{padding:5px 10px;border-radius:10px}
-    .brand-icon{width:26px;height:26px;font-size:11px;border-radius:7px}
-    .brand h1{font-size:12px}
-    .brand p{display:none}
-    .status{font-size:9px;padding:3px 7px}
-    .steps .step{width:14px}
-    .steps .step.active{width:22px}
-    .paso.active{gap:6px;grid-template-columns: minmax(0, 1fr) minmax(0, 200px)}
-    .card{padding:8px;border-radius:10px}
-    .btn,.btn-sec{padding:9px 10px;font-size:11px;border-radius:8px}
-    .avatar{width:32px;height:32px;font-size:11px;border-radius:9px}
-    .student-name{font-size:11px}
-    .student-meta{font-size:9px}
-    .placeholder-icon{width:48px;height:48px;font-size:22px;border-radius:14px}
-    .placeholder-text{font-size:10px;max-width:180px}
-    .placeholder-btn{padding:8px 14px;font-size:11px}
-    #notif{font-size:11px;padding:9px 14px}
-    .countdown{font-size:70px}
-    .capture-btn{padding:9px 18px;font-size:11px;bottom:10px}
-    .cam-icon-btn{width:32px;height:32px;font-size:14px}
-    #btnStop{bottom:8px;left:8px}
-    #btnSwitchCam{top:8px;right:8px}
-    .kbd-display{padding:5px 9px;border-radius:9px}
-    .kbd-value{font-size:17px;min-height:20px;letter-spacing:1px}
-    .kbd-grid{gap:4px}
-    .key{border-radius:8px;font-size:16px}
-    .key-num,.key-ok{font-size:18px}
-    .kbd-actions{gap:4px}
-    .kbd-actions button{padding:7px;font-size:10px}
+    .app{padding:6px;gap:6px;padding-top:calc(6px + env(safe-area-inset-top))}
+    .header{padding:6px 12px;border-radius:12px}
+    .header-logo-icon{width:30px;height:30px;font-size:13px}
+    .header h1{font-size:13px}
+    .header p{display:none}
+    .card{padding:8px;border-radius:12px}
+    .btn, .btn2{padding:10px 14px;font-size:13px;border-radius:10px}
+    .avatar{width:36px;height:36px;font-size:12px}
+    #notif{font-size:12px;padding:9px 16px}
+    .countdown{font-size:90px}
+    .teclado-display{padding:6px 10px}
+    .teclado-display-value{font-size:18px;min-height:22px}
+    .tecla{font-size:18px;border-radius:10px}
+    .tecla.tecla-num{font-size:20px}
+    .tecla.tecla-ok{font-size:20px}
+    .teclado-grid{gap:4px}
+    .teclado-acciones{gap:4px}
+    .teclado-acciones .btn2{padding:8px 6px;font-size:11px}
+    .camera-switcher{padding:6px 10px;font-size:10px;top:8px}
+    .camera-badge{padding:4px 8px;font-size:9px;top:8px;right:8px}
   }
 
   @media (orientation: landscape) and (min-width: 900px) {
     .app{max-width:1400px;margin:0 auto}
-    .paso.active{grid-template-columns: minmax(0, 1fr) minmax(0, 300px)}
+    .col-izq{flex:1.4}
   }
 </style>
 </head>
@@ -475,194 +220,231 @@
 <div id="splash">
   <div class="splash-logo">QR</div>
   <div class="splash-title">Portal de Asistencia</div>
+  <div class="splash-sub">Cargando sistema...</div>
+  <div class="splash-bar"><div class="splash-bar-inner"></div></div>
 </div>
 
-<div id="tutorial" class="hide">
-  <div class="tut-card">
-    <div class="tut-icon" id="tutIcon">📱</div>
-    <h2 class="tut-title" id="tutTitle">Bienvenido</h2>
-    <p class="tut-text" id="tutText">Vamos a registrar la asistencia de forma rápida y segura.</p>
-    <div class="tut-dots">
-      <div class="tut-dot on"></div>
-      <div class="tut-dot"></div>
-      <div class="tut-dot"></div>
-      <div class="tut-dot"></div>
+<div id="tutorial" class="hidden">
+  <div class="tutorial-card">
+    <div class="tutorial-icon" id="tut-icon">📱</div>
+    <h2 id="tut-title" style="color:#fff;font-size:20px;font-weight:700;margin:0 0 10px">Bienvenido</h2>
+    <p id="tut-text" style="color:#9ca3af;font-size:14px;line-height:1.6;margin:0 0 8px">Vamos a registrar la asistencia de forma rápida y segura.</p>
+    <div class="tutorial-dots">
+      <div class="tutorial-dot active" data-dot="0"></div>
+      <div class="tutorial-dot" data-dot="1"></div>
+      <div class="tutorial-dot" data-dot="2"></div>
+      <div class="tutorial-dot" data-dot="3"></div>
     </div>
-    <button id="tutNext" class="btn">Siguiente</button>
-    <button id="tutSkip" class="tut-skip">Saltar tutorial</button>
+    <button id="tut-next" class="btn" style="margin-top:8px">Siguiente →</button>
+    <button id="tut-skip" class="btn2 btn-sm" style="margin-top:8px;background:transparent;border:none;color:#6b7280">Saltar tutorial</button>
   </div>
 </div>
 
+<div id="confetti"></div>
 <div id="notif"></div>
 
-<div class="app">
+<div class="app" id="app">
 
-  <div class="topbar">
-    <div class="brand">
-      <div class="brand-icon">QR</div>
-      <div class="brand-text">
-        <h1 id="headerTitle">Asistencia</h1>
-        <p id="headerSub">Escanea el código QR</p>
+  <div class="header" id="header">
+    <div class="header-logo">
+      <div class="header-logo-icon" id="logoIcon">QR</div>
+      <div>
+        <h1 id="headerTitle">Registro de Asistencia</h1>
+        <p id="headerSub">Escanea el código QR del estudiante</p>
       </div>
     </div>
-    <div class="topbar-right">
-      <div class="status" id="backendStatus">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="backend-status" id="backendStatus">
         <span class="dot"></span>
-        <span id="backendText">...</span>
+        <span id="backendText">Conectando</span>
       </div>
-      <div class="steps">
-        <div class="step active" id="step1"></div>
-        <div class="step" id="step2"></div>
-        <div class="step" id="step3"></div>
+      <div class="step-indicator">
+        <div id="dot1" class="step-dot active"></div>
+        <div id="dot2" class="step-dot"></div>
+        <div id="dot3" class="step-dot"></div>
       </div>
     </div>
   </div>
 
-  <div class="stage">
+  <!-- PASO 1 -->
+  <section id="paso-escanear" class="paso activo">
+    <div class="col-izq">
+      <div class="card card-full" style="position:relative">
+        <div class="progress-track"><div class="progress-bar" id="progress1"></div></div>
 
-    <!-- PASO 1 -->
-    <section id="paso1" class="paso active">
-      <div class="media-panel">
-        <div id="placeholder" class="placeholder">
-          <div class="placeholder-icon">📷</div>
-          <p class="placeholder-text">Activa la cámara para escanear</p>
-          <button id="btnStart" class="placeholder-btn">Activar</button>
+        <div id="placeholder" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px">
+          <div style="font-size:56px;margin-bottom:8px;animation:bounceIcon 1.5s ease-in-out infinite">📱</div>
+          <p style="color:#9ca3af;font-size:13px;margin:0 0 18px">Activa la cámara para escanear el QR</p>
+          <button id="btn-iniciar-escaner" class="btn btn-pulse" style="max-width:280px;margin:0 auto">🎥 Activar Escáner</button>
         </div>
 
-        <div id="reader" style="display:none"></div>
+        <div id="scanner-container" style="display:none;flex:1;flex-direction:column;min-height:0">
+          <div class="scanner-wrap scan-corners">
+            <div id="reader"></div>
+            <div class="scan-line"></div>
+            <div class="corner-b"></div>
 
-        <!-- Botones flotantes (iconos pequeños) -->
-        <button id="btnStop" class="cam-icon-btn" style="display:none" title="Detener">⏹</button>
-        <button id="btnSwitchCam" class="cam-icon-btn" style="display:none" title="Cambiar cámara">🔄</button>
+            <button id="btn-cambiar-camara" class="camera-switcher hidden">
+              <span class="icon">🔄</span>
+              <span class="label">Cambiar cámara</span>
+            </button>
 
-        <div id="camError" class="placeholder" style="display:none">
-          <div class="placeholder-icon">⚠️</div>
-          <p class="placeholder-text" id="camErrorMsg"></p>
-          <button id="btnRetry" class="placeholder-btn">Reintentar</button>
+            <div id="camera-badge" class="camera-badge hidden">Trasera</div>
+          </div>
+          <button id="btn-detener-escaner" class="btn2 btn-sm" style="margin-top:8px">⏹️ Detener</button>
+        </div>
+
+        <div id="error-camara" style="display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px">
+          <div style="font-size:40px;margin-bottom:8px">⚠️</div>
+          <p id="error-camara-msg" style="color:#f87171;font-size:12px;margin:0 0 12px"></p>
+          <button id="btn-reintentar" class="btn2 btn-sm" style="max-width:200px">🔄 Reintentar</button>
         </div>
       </div>
+    </div>
 
-      <div class="side-panel">
-        <div id="vistaNormal" style="display:flex;flex-direction:column;gap:8px;flex:1;min-height:0">
-          <button id="btnOpenKbd" class="btn">⌨️ Ingreso manual</button>
+    <div class="col-der">
+      <div id="vista-normal">
+        <button id="btn-abrir-teclado" class="btn btn-pulse" style="padding:14px 16px">
+          ⌨️ Ingreso Manual
+        </button>
 
-          <div class="card" style="flex:1;overflow:auto;min-height:0">
-            <div style="color:#fff;font-weight:600;font-size:11px;margin:0 0 9px">Cómo usar</div>
-            <div class="instructions">
-              <div class="instr-item"><div class="instr-num">1</div><p class="instr-text">Muestra el QR frente a la cámara</p></div>
-              <div class="instr-item"><div class="instr-num">2</div><p class="instr-text">El sistema identifica al estudiante</p></div>
-              <div class="instr-item"><div class="instr-num">3</div><p class="instr-text">Toma la foto como respaldo</p></div>
-              <div class="instr-item"><div class="instr-num">4</div><p class="instr-text">Confirma el registro</p></div>
+        <div class="card" style="flex:1;overflow:auto">
+          <h3 style="color:#fff;font-weight:600;font-size:13px;margin:0 0 10px">📖 Cómo usar</h3>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:22px;height:22px;border-radius:50%;background:#a3ff12;color:#000;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
+              <p style="color:#9ca3af;font-size:11px;line-height:1.4;margin:2px 0">Muestra el QR del estudiante frente a la cámara</p>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:22px;height:22px;border-radius:50%;background:#a3ff12;color:#000;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
+              <p style="color:#9ca3af;font-size:11px;line-height:1.4;margin:2px 0">El sistema identifica al estudiante automáticamente</p>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:22px;height:22px;border-radius:50%;background:#a3ff12;color:#000;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
+              <p style="color:#9ca3af;font-size:11px;line-height:1.4;margin:2px 0">Toma la foto del estudiante como respaldo</p>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:22px;height:22px;border-radius:50%;background:#a3ff12;color:#000;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</div>
+              <p style="color:#9ca3af;font-size:11px;line-height:1.4;margin:2px 0">Confirma y listo, la asistencia queda registrada</p>
             </div>
           </div>
         </div>
-
-        <div id="vistaTeclado" style="display:none">
-          <div class="kbd-display" id="kbdDisplay">
-            <div class="kbd-label">Cédula</div>
-            <div class="kbd-value" id="kbdValue">Ingresa el número</div>
-          </div>
-          <div class="kbd-grid">
-            <button class="key key-num" data-key="1">1</button>
-            <button class="key key-num" data-key="2">2</button>
-            <button class="key key-num" data-key="3">3</button>
-            <button class="key key-num" data-key="4">4</button>
-            <button class="key key-num" data-key="5">5</button>
-            <button class="key key-num" data-key="6">6</button>
-            <button class="key key-num" data-key="7">7</button>
-            <button class="key key-num" data-key="8">8</button>
-            <button class="key key-num" data-key="9">9</button>
-            <button class="key key-del" data-key="del">⌫</button>
-            <button class="key key-num" data-key="0">0</button>
-            <button class="key key-ok" data-key="ok" disabled>✓</button>
-          </div>
-          <div class="kbd-actions">
-            <button id="btnCloseKbd" class="btn-sec">Cancelar</button>
-            <button id="btnClearKbd" class="btn-sec">Limpiar</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- PASO 2 -->
-    <section id="paso2" class="paso">
-      <div class="media-panel">
-        <video id="video" autoplay playsinline muted></video>
-        <canvas id="canvas" style="display:none"></canvas>
-        <img id="fotoPreview" alt="">
-
-        <div id="photoPlaceholder" class="placeholder">
-          <div class="placeholder-icon">📸</div>
-          <p class="placeholder-text">Activa la cámara frontal</p>
-          <button id="btnStartCam" class="placeholder-btn">Activar cámara</button>
-        </div>
-
-        <div id="photoError" class="placeholder" style="display:none">
-          <div class="placeholder-icon">⚠️</div>
-          <p class="placeholder-text" id="photoErrorMsg"></p>
-          <button id="btnRetryCam" class="placeholder-btn">Reintentar</button>
-        </div>
-
-        <button id="btnCapture" class="capture-btn" style="display:none">📸 Capturar foto</button>
       </div>
 
-      <div class="side-panel">
-        <div class="card student-card">
-          <div class="avatar" id="ini">--</div>
-          <div class="student-info">
-            <p class="student-name" id="nomEst">--</p>
-            <p class="student-meta">C.I: <span id="ciEst">--</span></p>
-            <p class="student-meta">PNF: <span id="pnfEst">--</span></p>
-          </div>
+      <div id="vista-teclado">
+        <div class="teclado-display" id="teclado-display">
+          <div class="teclado-display-label">Cédula del estudiante</div>
+          <div class="teclado-display-value placeholder" id="teclado-valor">Ingresa el número...</div>
         </div>
 
-        <div id="postCapture" style="display:none;flex:1;flex-direction:column;gap:8px;justify-content:flex-end">
-          <button id="btnRetake" class="btn-sec">Repetir foto</button>
-          <button id="btnRegister" class="btn">Confirmar asistencia</button>
+        <div class="teclado-grid">
+          <button class="tecla tecla-num" data-key="1">1</button>
+          <button class="tecla tecla-num" data-key="2">2</button>
+          <button class="tecla tecla-num" data-key="3">3</button>
+          <button class="tecla tecla-num" data-key="4">4</button>
+          <button class="tecla tecla-num" data-key="5">5</button>
+          <button class="tecla tecla-num" data-key="6">6</button>
+          <button class="tecla tecla-num" data-key="7">7</button>
+          <button class="tecla tecla-num" data-key="8">8</button>
+          <button class="tecla tecla-num" data-key="9">9</button>
+          <button class="tecla tecla-borrar" data-key="del">⌫</button>
+          <button class="tecla tecla-num" data-key="0">0</button>
+          <button class="tecla tecla-ok" data-key="ok">✓</button>
         </div>
 
-        <div id="waitingInfo" class="card" style="flex:1;display:flex;align-items:center;justify-content:center">
-          <p style="color:#6b7280;font-size:11px;text-align:center;margin:0;line-height:1.5">Toma la foto del estudiante<br>para continuar</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- PASO 3 -->
-    <section id="paso3" class="paso">
-      <div class="media-panel" style="display:flex;align-items:center;justify-content:center">
-        <div style="text-align:center;padding:20px">
-          <div style="width:90px;height:90px;border-radius:50%;background:rgba(163,255,18,.1);border:2px solid rgba(163,255,18,.35);display:flex;align-items:center;justify-content:center;font-size:42px;margin:0 auto">✅</div>
-          <p style="color:#a3ff12;font-size:13px;font-weight:600;margin:16px 0 0">Asistencia registrada</p>
+        <div class="teclado-acciones">
+          <button id="btn-cerrar-teclado" class="btn2">✕ Cancelar</button>
+          <button id="btn-limpiar-teclado" class="btn2">🗑 Limpiar</button>
         </div>
       </div>
 
-      <div class="side-panel">
-        <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center">
-          <h2 style="color:#fff;font-size:14px;font-weight:700;margin:0 0 10px;text-align:center">Registro completado</h2>
-          <div style="background:#0f1115;border-radius:9px;padding:11px;margin-bottom:11px">
-            <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:11px;border-bottom:1px solid #1f2937">
-              <span style="color:#6b7280">Estudiante</span>
-              <span id="confNombre" style="color:#fff;font-weight:500;text-align:right;max-width:60%"></span>
-            </div>
-            <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:11px;border-bottom:1px solid #1f2937">
-              <span style="color:#6b7280">C.I.</span>
-              <span id="confCi" style="color:#fff;font-weight:500"></span>
-            </div>
-            <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:11px;border-bottom:1px solid #1f2937">
-              <span style="color:#6b7280">PNF</span>
-              <span id="confPnf" style="color:#fff;font-weight:500"></span>
-            </div>
-            <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:11px">
-              <span style="color:#6b7280">Fecha</span>
-              <span id="confFecha" style="color:#a3ff12;font-weight:500;text-align:right;max-width:60%"></span>
-            </div>
+    </div>
+  </section>
+
+  <!-- PASO 2 -->
+  <section id="paso-foto" class="paso">
+    <div class="col-izq">
+      <div class="card card-full" style="position:relative">
+        <div class="progress-track"><div class="progress-bar" id="progress2"></div></div>
+
+        <div class="camera-wrap" id="camera-container">
+          <video id="video" autoplay playsinline muted></video>
+          <canvas id="canvas" style="display:none"></canvas>
+          <img id="foto-preview" alt="Vista previa">
+          <div class="flash" id="flash"></div>
+          <div id="countdown" class="countdown hidden"><span class="countdown-num"></span></div>
+          <div id="foto-placeholder" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000">
+            <div style="font-size:52px;margin-bottom:10px;animation:bounceIcon 1.5s ease-in-out infinite">📸</div>
+            <p style="color:#9ca3af;font-size:12px;margin:0 0 14px">Activa la cámara frontal para la selfie</p>
+            <button id="btn-encender-camara" class="btn btn-pulse" style="max-width:240px">📷 Encender Cámara</button>
           </div>
-          <button id="btnReset" class="btn">Escanear otro</button>
+          <div id="camara-error" style="display:none;position:absolute;inset:0;flex-direction:column;align-items:center;justify-content:center;background:#000;text-align:center;padding:20px">
+            <div style="font-size:40px;margin-bottom:10px">⚠️</div>
+            <p id="camara-error-msg" style="color:#f87171;font-size:12px;margin:0 0 12px"></p>
+            <button id="btn-reintentar-camara" class="btn2 btn-sm" style="max-width:180px">🔄 Reintentar</button>
+          </div>
+        </div>
+        <button id="btn-capturar" class="btn hidden" style="margin-top:8px">📸 Tomar Foto (con cuenta regresiva)</button>
+      </div>
+    </div>
+    <div class="col-der">
+      <div class="card" id="card-estudiante">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="avatar" id="iniciales">--</div>
+          <div style="min-width:0;flex:1">
+            <p id="nombre-est" style="color:#fff;font-weight:600;font-size:13px;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">--</p>
+            <p style="color:#9ca3af;font-size:11px;margin:3px 0 0">C.I: <span id="ci-est">--</span></p>
+            <p style="color:#9ca3af;font-size:11px;margin:2px 0 0">PNF: <span id="pnf-est">--</span></p>
+          </div>
         </div>
       </div>
-    </section>
+      <div id="controles-post" style="display:none;flex:1;flex-direction:column;gap:10px;justify-content:flex-end">
+        <button id="btn-repetir" class="btn2">🔄 Repetir Foto</button>
+        <button id="btn-registrar" class="btn btn-pulse">✅ Confirmar Asistencia</button>
+      </div>
+      <div id="info-espera" class="card" style="flex:1;display:flex;align-items:center;justify-content:center">
+        <p style="color:#6b7280;font-size:12px;text-align:center;margin:0">Toma la foto del estudiante<br>para continuar</p>
+      </div>
+    </div>
+  </section>
 
-  </div>
+  <!-- PASO 3 -->
+  <section id="paso-confirmacion" class="paso">
+    <div class="col-izq">
+      <div class="card card-full" style="display:flex;align-items:center;justify-content:center;position:relative">
+        <div class="progress-track"><div class="progress-bar" style="width:100%"></div></div>
+        <div style="text-align:center">
+          <div id="check-container" style="width:120px;height:120px;border-radius:50%;background:rgba(163,255,18,.15);border:3px solid rgba(163,255,18,.4);display:flex;align-items:center;justify-content:center;font-size:60px;margin:0 auto;animation:successPop .6s cubic-bezier(.34,1.56,.64,1)">✅</div>
+          <p id="success-msg" style="color:#a3ff12;font-size:14px;font-weight:600;margin:20px 0 0;opacity:0;animation:fadeUp .5s ease .4s forwards">Asistencia registrada</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-der">
+      <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+        <h2 style="color:#fff;font-size:17px;font-weight:700;margin:0 0 14px;text-align:center">¡Todo Listo!</h2>
+        <div style="background:#0f1115;border-radius:10px;padding:12px;text-align:left;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12px;border-bottom:1px solid #1f2937">
+            <span style="color:#9ca3af">Estudiante</span>
+            <span id="conf-nombre" style="color:#fff;font-weight:500;text-align:right;max-width:60%">--</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12px;border-bottom:1px solid #1f2937">
+            <span style="color:#9ca3af">C.I.</span>
+            <span id="conf-ci" style="color:#fff;font-weight:500">--</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12px;border-bottom:1px solid #1f2937">
+            <span style="color:#9ca3af">PNF</span>
+            <span id="conf-pnf" style="color:#fff;font-weight:500">--</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12px">
+            <span style="color:#9ca3af">Fecha</span>
+            <span id="conf-fecha" style="color:#a3ff12;font-weight:500;text-align:right;max-width:60%">--</span>
+          </div>
+        </div>
+        <button id="btn-reiniciar" class="btn btn-pulse">🔄 Escanear otro estudiante</button>
+      </div>
+    </div>
+  </section>
+
 </div>
 
 <script>
@@ -670,551 +452,723 @@
 // CONFIGURACIÓN
 // ============================================================
 var API_URL = 'https://script.google.com/macros/s/AKfycbxs9lJS5ooh78lksVGgx15QfblWOis5HwNgx1cT78JMwQxWTevqZss4EhTzAcCBtIVj/exec';
-var CACHE_TTL = 10 * 60 * 1000; // 10 minutos
-var CAM_PREF_KEY = 'portal_camera_pref';
+var CACHE_TTL = 3 * 60 * 1000;
+var PREFERRED_CAMERA_KEY = 'portal_camera_pref';
 
 // ============================================================
-// SERVICE WORKER
+// SERVICE WORKER (con auto-update)
 // ============================================================
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('./sw.js').then(function(reg) {
+      console.log('✅ Service Worker registrado');
+
+      // Buscar actualizaciones cada 30 segundos
       setInterval(function() { reg.update().catch(function() {}); }, 30000);
+
+      // Detectar nueva versión
       reg.addEventListener('updatefound', function() {
-        var w = reg.installing;
-        w.addEventListener('statechange', function() {
-          if (w.state === 'installed' && navigator.serviceWorker.controller) showUpdate();
+        var newWorker = reg.installing;
+        console.log('🔄 Buscando nueva versión...');
+        newWorker.addEventListener('statechange', function() {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            console.log('🆕 Nueva versión lista');
+            mostrarAvisoActualizacion();
+          }
         });
       });
-    }).catch(function() {});
+    }).catch(function(err) {
+      console.log('SW:', err.message);
+    });
+
+    // Detectar cambio de controlador → recargar
     var refreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', function() {
-      if (refreshing) return; refreshing = true; window.location.reload();
+      if (refreshing) return;
+      refreshing = true;
+      window.location.reload();
     });
   });
 }
-function showUpdate() {
+
+function mostrarAvisoActualizacion() {
   var n = document.getElementById('notif');
-  n.innerHTML = '🆕 Nueva versión <button onclick="doUpdate()" style="background:#a3ff12;color:#000;border:none;padding:5px 10px;border-radius:6px;font-weight:700;margin-left:8px;cursor:pointer;font-size:11px">Actualizar</button>';
-  n.className = 'show ok'; n.style.pointerEvents = 'auto';
+  n.innerHTML = '<span>🆕</span><span>Nueva versión disponible</span><button onclick="actualizarApp()" style="background:#a3ff12;color:#000;border:none;padding:6px 12px;border-radius:8px;font-weight:700;margin-left:8px;cursor:pointer;font-size:12px">Actualizar</button>';
+  n.className = 'visible exito';
   clearTimeout(n._t);
+  // Mantener visible hasta que el usuario actúe
 }
-function doUpdate() {
-  if (navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage('SKIP_WAITING');
-  setTimeout(function() { window.location.reload(); }, 300);
+
+function actualizarApp() {
+  if (navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage('SKIP_WAITING');
+  }
+  setTimeout(function() { window.location.reload(); }, 400);
 }
 
 // ============================================================
-// ESTADO
+// ESTADO GLOBAL
 // ============================================================
-var qrScanner = null, streamActual = null, fotoBase64 = null, estudianteActual = null;
-var escaneando = false, escanerActivo = false, capturando = false;
-var cache = null, cacheTime = 0, cacheFetching = null;
-var camaras = [], camIndex = 0, camChanging = false;
-var kbdVal = '';
+var qrScanner = null;
+var streamActual = null;
+var fotoBase64 = null;
+var estudianteActual = null;
+var escaneando = false;
+var escanerActivo = false;
+var capturando = false;
+
+var estudiantesCache = null;
+var estudiantesCacheTime = 0;
+var estudiantesCacheFetching = null;
+
+var camarasDisponibles = [];
+var camaraIndexActual = 0;
+var cambiandoCamara = false;
+
+var tecladoValor = '';
 
 // ============================================================
 // AUDIO
 // ============================================================
 var audioCtx = null;
-function beep(f, d) {
+function initAudio() { try { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
+function beep(freq, dur, type) {
   try {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    var o = audioCtx.createOscillator(), g = audioCtx.createGain();
-    o.frequency.value = f;
-    g.gain.setValueAtTime(0.12, audioCtx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + d/1000);
-    o.connect(g); g.connect(audioCtx.destination);
-    o.start(); o.stop(audioCtx.currentTime + d/1000);
+    initAudio();
+    if (!audioCtx) return;
+    var osc = audioCtx.createOscillator();
+    var gain = audioCtx.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur/1000);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + dur/1000);
   } catch(e) {}
 }
-function sndOk() { beep(880, 80); setTimeout(function() { beep(1320, 100); }, 80); }
-function sndErr() { beep(200, 220); }
-function sndShutter() { beep(1000, 40); }
-function vib(p) { if (navigator.vibrate) navigator.vibrate(p); }
+function sonidoExito() { beep(523, 100); setTimeout(function() { beep(659, 100); }, 100); setTimeout(function() { beep(784, 180); }, 200); }
+function sonidoError() { beep(220, 180, 'square'); setTimeout(function() { beep(180, 250, 'square'); }, 130); }
+function sonidoEscaneo() { beep(1200, 70); }
+function sonidoCaptura() { beep(900, 50, 'square'); }
+function sonidoCountdown(n) { beep(n === 1 ? 1200 : 800, 90); }
+function sonidoTecla() { beep(1400, 35); }
+function sonidoTeclaDel() { beep(600, 50); }
+function sonidoTeclaOk() { beep(880, 70); setTimeout(function() { beep(1200, 90); }, 70); }
+function sonidoCambioCamara() { beep(700, 60); setTimeout(function() { beep(1000, 80); }, 60); }
+
+function vib(pattern) { if (navigator.vibrate) navigator.vibrate(pattern); }
+
+// ============================================================
+// NOTIFICACIONES
+// ============================================================
+function notif(msg, tipo) {
+  var n = document.getElementById('notif');
+  var icon = tipo === 'exito' ? '✅' : tipo === 'error' ? '❌' : 'ℹ️';
+  n.innerHTML = '<span>' + icon + '</span><span>' + msg + '</span>';
+  n.className = 'visible' + (tipo ? ' ' + tipo : '');
+  clearTimeout(n._t);
+  n._t = setTimeout(function() { n.className = ''; }, 3000);
+  if (tipo === 'exito') sonidoExito();
+  if (tipo === 'error') sonidoError();
+}
+
+function setBackendStatus(status, text) {
+  var el = document.getElementById('backendStatus');
+  el.className = 'backend-status ' + status;
+  document.getElementById('backendText').textContent = text;
+}
 
 // ============================================================
 // UTILIDADES
 // ============================================================
-function toast(msg, type) {
-  var n = document.getElementById('notif');
-  n.innerHTML = msg;
-  n.className = 'show ' + (type === 'ok' ? 'ok' : type === 'err' ? 'err' : 'info');
-  n.style.pointerEvents = 'none';
-  clearTimeout(n._t);
-  n._t = setTimeout(function() { n.className = ''; }, 2500);
-  if (type === 'ok') sndOk();
-  if (type === 'err') sndErr();
-}
-function setBackend(s, t) {
-  var el = document.getElementById('backendStatus');
-  el.className = 'status ' + s;
-  document.getElementById('backendText').textContent = t;
-}
-function cleanCI(v) { return String(v || '').replace(/\D/g, ''); }
-function initials(n) {
-  return String(n || '').split(' ').filter(function(w) { return w.length; })
+function limpiarCI(v) { return String(v || '').replace(/\D/g, ''); }
+function iniciales(n) {
+  return String(n || '').split(' ').filter(function(w) { return w.length > 0; })
     .slice(0, 2).map(function(w) { return w[0]; }).join('').toUpperCase();
 }
-function fmtDate(d) {
+function formatearFecha(d) {
   var p = function(n) { return String(n).padStart(2, '0'); };
   return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
 }
-function setStep(n) {
-  ['step1', 'step2', 'step3'].forEach(function(id, i) {
+function cambiarPaso(n) {
+  ['dot1', 'dot2', 'dot3'].forEach(function(id, i) {
     var el = document.getElementById(id);
     el.classList.remove('active', 'done');
     if (i === n - 1) el.classList.add('active');
     else if (i < n - 1) el.classList.add('done');
   });
+  var header = document.getElementById('header');
+  header.classList.add('active-glow');
+  setTimeout(function() { header.classList.remove('active-glow'); }, 700);
 }
 
 // ============================================================
-// CACHE DE ESTUDIANTES (precarga + TTL largo)
+// CACHE DE ESTUDIANTES
 // ============================================================
-async function getStudents(force) {
+async function getEstudiantes(forceRefresh) {
   var now = Date.now();
-  if (!force && cache && (now - cacheTime) < CACHE_TTL) return cache;
-  if (cacheFetching) return cacheFetching;
+  if (!forceRefresh && estudiantesCache && (now - estudiantesCacheTime) < CACHE_TTL) {
+    console.log('⚡ Cache HIT:', estudiantesCache.length);
+    return estudiantesCache;
+  }
+  if (estudiantesCacheFetching) return estudiantesCacheFetching;
 
-  cacheFetching = fetch(API_URL + '?action=getStudents')
+  console.log('🌐 Cache MISS - obteniendo...');
+  estudiantesCacheFetching = fetch(API_URL + '?action=getStudents')
     .then(function(r) { return r.json(); })
-    .then(function(d) {
-      if (Array.isArray(d) && d.length) { cache = d; cacheTime = Date.now(); }
-      cacheFetching = null;
-      return d;
+    .then(function(data) {
+      if (Array.isArray(data) && data.length > 0) {
+        estudiantesCache = data;
+        estudiantesCacheTime = Date.now();
+        console.log('✅ Estudiantes cacheados:', data.length);
+      }
+      estudiantesCacheFetching = null;
+      return data;
     })
-    .catch(function(e) {
-      cacheFetching = null;
-      if (cache) return cache;
-      throw e;
+    .catch(function(err) {
+      estudiantesCacheFetching = null;
+      if (estudiantesCache) return estudiantesCache;
+      throw err;
     });
-  return cacheFetching;
+  return estudiantesCacheFetching;
 }
-function preload() {
-  var t0 = performance.now();
-  getStudents(false).then(function(d) {
-    console.log('⚡ Precarga: ' + Math.round(performance.now() - t0) + 'ms para ' + d.length + ' estudiantes');
-    setBackend('online', d.length + ' registros');
-  }).catch(function() { setBackend('offline', 'Sin conexión'); });
+
+function precargarEstudiantes() {
+  getEstudiantes(false).then(function(data) {
+    setBackendStatus('online', data.length + ' registros');
+  }).catch(function() {
+    setBackendStatus('offline', 'Sin conexión');
+  });
+}
+
+// ============================================================
+// RIPPLE
+// ============================================================
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('.btn, .btn2, .tecla');
+  if (!btn) return;
+  var rect = btn.getBoundingClientRect();
+  var ripple = document.createElement('span');
+  ripple.className = 'ripple';
+  var size = Math.max(rect.width, rect.height);
+  ripple.style.width = ripple.style.height = size + 'px';
+  ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
+  ripple.style.top = (e.clientY - rect.top - size/2) + 'px';
+  btn.appendChild(ripple);
+  setTimeout(function() { ripple.remove(); }, 500);
+});
+
+// ============================================================
+// CONFETTI
+// ============================================================
+function lanzarConfetti() {
+  var container = document.getElementById('confetti');
+  var colores = ['#a3ff12', '#8be60f', '#ffffff', '#60a5fa', '#fbbf24'];
+  for (var i = 0; i < 50; i++) {
+    var piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.background = colores[Math.floor(Math.random() * colores.length)];
+    piece.style.animationDelay = Math.random() * 0.4 + 's';
+    piece.style.animationDuration = (1.8 + Math.random() * 1.2) + 's';
+    piece.style.width = (6 + Math.random() * 8) + 'px';
+    piece.style.height = (6 + Math.random() * 8) + 'px';
+    container.appendChild(piece);
+    setTimeout(function(p) { return function() { p.remove(); }; }(piece), 3500);
+  }
+}
+
+// ============================================================
+// TUTORIAL
+// ============================================================
+var tutorialSteps = [
+  { icon: '👋', title: 'Bienvenido al Portal', text: 'Vamos a registrar la asistencia de forma rápida y segura.' },
+  { icon: '📷', title: 'Escanea el QR', text: 'Muestra el código QR del estudiante frente a la cámara. Puedes cambiar entre cámaras con el botón verde.' },
+  { icon: '📸', title: 'Toma la foto', text: 'El sistema abrirá la cámara frontal para tomar una selfie como respaldo.' },
+  { icon: '✅', title: 'Confirma y listo', text: 'Verifica los datos y confirma. La asistencia queda guardada al instante.' }
+];
+var tutorialIndex = 0;
+function mostrarTutorialPaso(idx) {
+  var step = tutorialSteps[idx];
+  document.getElementById('tut-icon').textContent = step.icon;
+  document.getElementById('tut-title').textContent = step.title;
+  document.getElementById('tut-text').textContent = step.text;
+  document.querySelectorAll('.tutorial-dot').forEach(function(d, i) {
+    d.classList.toggle('active', i === idx);
+  });
+  document.getElementById('tut-next').textContent = idx === tutorialSteps.length - 1 ? '¡Empezar! 🚀' : 'Siguiente →';
+}
+function cerrarTutorial() {
+  document.getElementById('tutorial').classList.add('hidden');
+  localStorage.setItem('portal_tutorial_visto', '1');
 }
 
 // ============================================================
 // SPLASH
 // ============================================================
 window.addEventListener('load', function() {
-  // Iniciar precarga INMEDIATAMENTE (paralelo con splash)
-  preload();
-
   setTimeout(function() {
     document.getElementById('splash').classList.add('hide');
-    if (!localStorage.getItem('tut_visto')) {
-      setTimeout(function() { document.getElementById('tutorial').classList.remove('hide'); }, 150);
+    document.getElementById('app').classList.add('ready');
+    if (!localStorage.getItem('portal_tutorial_visto')) {
+      setTimeout(function() {
+        document.getElementById('tutorial').classList.remove('hidden');
+        mostrarTutorialPaso(0);
+      }, 300);
     }
-  }, 900);
+    precargarEstudiantes();
+  }, 1800);
 });
-
-// ============================================================
-// TUTORIAL
-// ============================================================
-var tutSteps = [
-  { i:'👋', t:'Bienvenido', x:'Vamos a registrar la asistencia de forma rápida y segura.' },
-  { i:'📷', t:'Escanea el QR', x:'Muestra el código QR del estudiante. Si hay varias cámaras, cambia con el botón 🔄.' },
-  { i:'📸', t:'Toma la foto', x:'Se abrirá la cámara frontal para una selfie como respaldo.' },
-  { i:'✅', t:'Confirma', x:'Verifica los datos y confirma. La asistencia queda guardada al instante.' }
-];
-var tutIdx = 0;
-function renderTut() {
-  var s = tutSteps[tutIdx];
-  document.getElementById('tutIcon').textContent = s.i;
-  document.getElementById('tutTitle').textContent = s.t;
-  document.getElementById('tutText').textContent = s.x;
-  document.querySelectorAll('.tut-dot').forEach(function(d, i) { d.classList.toggle('on', i === tutIdx); });
-  document.getElementById('tutNext').textContent = tutIdx === tutSteps.length - 1 ? 'Empezar' : 'Siguiente';
-}
-function closeTut() {
-  document.getElementById('tutorial').classList.add('hide');
-  localStorage.setItem('tut_visto', '1');
-}
 
 // ============================================================
 // DETECCIÓN DE CÁMARAS
 // ============================================================
-async function detectCams() {
+async function detectarCamaras() {
   try {
-    var t = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-    t.getTracks().forEach(function(x) { x.stop(); });
-    var devs = await navigator.mediaDevices.enumerateDevices();
-    camaras = devs.filter(function(d) { return d.kind === 'videoinput'; });
-    var pref = localStorage.getItem(CAM_PREF_KEY);
+    var tempStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    tempStream.getTracks().forEach(function(t) { t.stop(); });
+
+    var devices = await navigator.mediaDevices.enumerateDevices();
+    camarasDisponibles = devices.filter(function(d) { return d.kind === 'videoinput'; });
+
+    console.log('📷 Cámaras detectadas:', camarasDisponibles.length);
+    camarasDisponibles.forEach(function(c, i) {
+      console.log('  ' + i + ': ' + (c.label || 'Cámara ' + (i + 1)));
+    });
+
+    var pref = localStorage.getItem(PREFERRED_CAMERA_KEY);
     if (pref) {
-      var i = camaras.findIndex(function(c) { return c.deviceId === pref; });
-      if (i !== -1) camIndex = i;
+      var idx = camarasDisponibles.findIndex(function(c) { return c.deviceId === pref; });
+      if (idx !== -1) camaraIndexActual = idx;
     }
-    return camaras;
-  } catch (e) { return []; }
+    return camarasDisponibles;
+  } catch (err) {
+    console.warn('No se pudieron detectar cámaras:', err);
+    return [];
+  }
 }
 
 // ============================================================
 // ESCÁNER QR
 // ============================================================
-async function startScanner() {
-  document.getElementById('placeholder').style.display = 'none';
-  document.getElementById('camError').style.display = 'none';
-  document.getElementById('reader').style.display = 'block';
+async function iniciarEscaner() {
+  document.getElementById('placeholder').classList.add('hidden');
+  document.getElementById('error-camara').style.display = 'none';
+  document.getElementById('progress1').style.width = '30%';
 
-  if (camaras.length === 0) await detectCams();
-  if (camaras.length > 1) document.getElementById('btnSwitchCam').style.display = 'flex';
-  document.getElementById('btnStop').style.display = 'flex';
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    mostrarErrorCamara('Tu navegador no soporta acceso a la cámara.');
+    return;
+  }
 
-  await startQRCam();
+  document.getElementById('scanner-container').style.display = 'flex';
+
+  if (camarasDisponibles.length === 0) await detectarCamaras();
+
+  var switchBtn = document.getElementById('btn-cambiar-camara');
+  var badge = document.getElementById('camera-badge');
+  if (camarasDisponibles.length > 1) {
+    switchBtn.classList.remove('hidden');
+    badge.classList.remove('hidden');
+  } else {
+    switchBtn.classList.add('hidden');
+    badge.classList.add('hidden');
+  }
+
+  actualizarBadgeCamara();
+  await iniciarCamaraQR();
 }
 
-async function startQRCam() {
+async function iniciarCamaraQR() {
   if (qrScanner && escanerActivo) {
     try { await qrScanner.stop(); await qrScanner.clear(); } catch(e) {}
-    qrScanner = null; escanerActivo = false;
+    qrScanner = null;
+    escanerActivo = false;
   }
 
   try {
     qrScanner = new Html5Qrcode('reader');
 
-    var camCfg = camaras.length > 0
-      ? { deviceId: { exact: camaras[camIndex].deviceId } }
-      : { facingMode: 'environment' };
+    var cameraConfig;
+    if (camarasDisponibles.length > 0) {
+      cameraConfig = { deviceId: { exact: camarasDisponibles[camaraIndexActual].deviceId } };
+    } else {
+      cameraConfig = { facingMode: 'environment' };
+    }
 
     await qrScanner.start(
-      camCfg,
+      cameraConfig,
       {
-        fps: 20, // Mayor FPS = detección más rápida
-        qrbox: function(w, h) {
-          var size = Math.floor(Math.min(w, h) * 0.7);
-          return { width: size, height: size };
-        },
+        fps: 15,
+        qrbox: { width: 220, height: 220 },
         aspectRatio: 1.0,
-        experimentalFeatures: { useBarCodeDetectorIfSupported: true } // Usa API nativa si existe
+        experimentalFeatures: { useBarCodeDetectorIfSupported: true }
       },
-      function(txt) {
+      function(texto) {
         if (escaneando) return;
         escaneando = true;
-        beep(1300, 60);
-        vib([60, 30, 60]);
-        stopScanner(true).then(function() { processCI(txt); });
+        document.getElementById('progress1').style.width = '100%';
+        sonidoEscaneo();
+        vib([80, 40, 80]);
+        detenerEscaner(true).then(function() { procesarCI(texto); });
       },
       function() {}
     );
     escanerActivo = true;
-    console.log('✅ Escáner listo');
+    console.log('✅ Escáner iniciado en cámara: ' + camaraIndexActual);
   } catch (err) {
     escanerActivo = false;
-    document.getElementById('reader').style.display = 'none';
-    document.getElementById('btnStop').style.display = 'none';
-    document.getElementById('btnSwitchCam').style.display = 'none';
-    document.getElementById('camError').style.display = 'flex';
-    var m = 'No se pudo acceder a la cámara. ';
-    if (err.name === 'NotAllowedError') m += 'Permiso denegado.';
-    else if (err.name === 'NotFoundError') m += 'Cámara no encontrada.';
-    else m += err.toString();
-    document.getElementById('camErrorMsg').textContent = m;
+    document.getElementById('progress1').style.width = '0%';
+    var msg = 'No se pudo acceder a la cámara. ';
+    if (err.name === 'NotAllowedError') msg += 'Permiso denegado.';
+    else if (err.name === 'NotFoundError') msg += 'No se encontró cámara.';
+    else msg += err.toString();
+    mostrarErrorCamara(msg);
   }
 }
 
-async function switchCam() {
-  if (camChanging || camaras.length < 2) return;
-  camChanging = true;
-  beep(700, 50);
-  vib(20);
-  camIndex = (camIndex + 1) % camaras.length;
-  localStorage.setItem(CAM_PREF_KEY, camaras[camIndex].deviceId);
-  await startQRCam();
-  setTimeout(function() { camChanging = false; }, 300);
+function actualizarBadgeCamara() {
+  var badge = document.getElementById('camera-badge');
+  var cam = camarasDisponibles[camaraIndexActual];
+  if (!cam) { badge.textContent = 'Automática'; return; }
+  var label = (cam.label || '').toLowerCase();
+  if (label.includes('front') || label.includes('user') || label.includes('frontal')) {
+    badge.textContent = '👤 Frontal';
+  } else if (label.includes('back') || label.includes('rear') || label.includes('environment') || label.includes('trasera')) {
+    badge.textContent = '📷 Trasera';
+  } else {
+    badge.textContent = '📷 Cam ' + (camaraIndexActual + 1);
+  }
 }
 
-async function stopScanner(keep) {
+async function cambiarCamara() {
+  if (cambiandoCamara || camarasDisponibles.length < 2) return;
+  cambiandoCamara = true;
+
+  var btn = document.getElementById('btn-cambiar-camara');
+  btn.classList.add('switching');
+  sonidoCambioCamara();
+  vib(30);
+
+  camaraIndexActual = (camaraIndexActual + 1) % camarasDisponibles.length;
+  localStorage.setItem(PREFERRED_CAMERA_KEY, camarasDisponibles[camaraIndexActual].deviceId);
+  actualizarBadgeCamara();
+
+  await iniciarCamaraQR();
+
+  setTimeout(function() {
+    btn.classList.remove('switching');
+    cambiandoCamara = false;
+  }, 600);
+}
+
+async function detenerEscaner(mantener) {
   if (qrScanner && escanerActivo) {
     try { await qrScanner.stop(); await qrScanner.clear(); } catch(e) {}
     qrScanner = null; escanerActivo = false;
   }
-  if (!keep) {
-    document.getElementById('reader').style.display = 'none';
-    document.getElementById('btnStop').style.display = 'none';
-    document.getElementById('btnSwitchCam').style.display = 'none';
-    document.getElementById('placeholder').style.display = 'flex';
+  if (!mantener) {
+    document.getElementById('scanner-container').style.display = 'none';
+    document.getElementById('placeholder').classList.remove('hidden');
+    document.getElementById('progress1').style.width = '0%';
+    document.getElementById('btn-cambiar-camara').classList.add('hidden');
+    document.getElementById('camera-badge').classList.add('hidden');
   }
 }
 
+function mostrarErrorCamara(msg) {
+  document.getElementById('scanner-container').style.display = 'none';
+  document.getElementById('placeholder').classList.add('hidden');
+  document.getElementById('error-camara').style.display = 'flex';
+  document.getElementById('error-camara-msg').textContent = msg;
+}
+
 // ============================================================
-// PROCESAR CI (OPTIMIZADO)
+// PROCESAR C.I.
 // ============================================================
-async function processCI(text) {
-  if (!text) { escaneando = false; return; }
-  var ci = cleanCI(text);
+async function procesarCI(texto) {
+  if (!texto) { escaneando = false; return; }
+  var ci = limpiarCI(texto);
   if (!ci || ci.length < 6) {
-    toast('Código inválido', 'err');
+    notif('Código inválido', 'error');
     escaneando = false;
-    goScan();
+    irAPasoEscanear();
     return;
   }
-
+  console.log('🔍 Buscando CI:', ci);
   var t0 = performance.now();
-  toast('Buscando...', 'info');
 
   try {
-    // Usa cache (instantáneo si ya se precargó)
-    var arr = await getStudents(false);
+    var estudiantes = await getEstudiantes(false);
 
-    if (!Array.isArray(arr) || !arr.length) {
-      toast('Base vacía', 'err');
+    if (!Array.isArray(estudiantes) || !estudiantes.length) {
+      notif('Sin estudiantes en la base', 'error');
       escaneando = false;
-      goScan();
+      irAPasoEscanear();
       return;
     }
 
-    // Búsqueda optimizada con índice
-    var est = null;
-    for (var i = 0; i < arr.length; i++) {
-      var e = arr[i];
-      if (String(e.ciNormalizado) === ci || cleanCI(e.ci) === ci) {
-        est = e;
-        break;
-      }
-    }
+    var est = estudiantes.find(function(e) {
+      return limpiarCI(e.ci) === ci || String(e.ciNormalizado) === ci;
+    });
 
-    console.log('⚡ Búsqueda: ' + Math.round(performance.now() - t0) + 'ms');
+    var t1 = performance.now();
+    console.log('⚡ Búsqueda en ' + Math.round(t1 - t0) + 'ms');
 
     if (!est) {
-      toast('No encontrado: ' + ci, 'err');
+      notif('Estudiante no encontrado: ' + ci, 'error');
       escaneando = false;
-      goScan();
+      irAPasoEscanear();
       return;
     }
 
     estudianteActual = est;
-    goPhoto();
-  } catch (e) {
-    toast('Error de conexión', 'err');
+    irAPasoFoto();
+  } catch (err) {
+    console.error('❌ Error:', err);
+    notif('Error de conexión', 'error');
     escaneando = false;
-    goScan();
+    irAPasoEscanear();
   }
 }
 
 // ============================================================
 // NAVEGACIÓN
 // ============================================================
-function goScan() {
-  document.getElementById('paso1').classList.add('active');
-  document.getElementById('paso2').classList.remove('active');
-  document.getElementById('paso3').classList.remove('active');
-  document.getElementById('placeholder').style.display = 'flex';
-  document.getElementById('reader').style.display = 'none';
-  document.getElementById('btnStop').style.display = 'none';
-  document.getElementById('btnSwitchCam').style.display = 'none';
-  document.getElementById('camError').style.display = 'none';
+function irAPasoEscanear() {
+  document.getElementById('paso-escanear').classList.add('activo');
+  document.getElementById('paso-foto').classList.remove('activo');
+  document.getElementById('paso-confirmacion').classList.remove('activo');
+  document.getElementById('placeholder').classList.remove('hidden');
+  document.getElementById('scanner-container').style.display = 'none';
+  document.getElementById('error-camara').style.display = 'none';
+  document.getElementById('progress1').style.width = '0%';
   escaneando = false; escanerActivo = false;
-  stopPhotoCam(); stopScanner();
-  closeKbd();
-  setStep(1);
-  document.getElementById('headerTitle').textContent = 'Asistencia';
-  document.getElementById('headerSub').textContent = 'Escanea el código QR';
-  // Refrescar cache en segundo plano (no bloquea)
-  setTimeout(preload, 500);
+  detenerCamaraFoto(); detenerEscaner();
+  cerrarTeclado();
+  cambiarPaso(1);
+  document.getElementById('headerTitle').textContent = 'Registro de Asistencia';
+  document.getElementById('headerSub').textContent = 'Escanea el código QR del estudiante';
+  precargarEstudiantes();
 }
 
-function goPhoto() {
-  document.getElementById('paso1').classList.remove('active');
-  document.getElementById('paso2').classList.add('active');
-  document.getElementById('paso3').classList.remove('active');
-  var n = estudianteActual.nombreCompleto || '';
-  document.getElementById('nomEst').textContent = n;
-  document.getElementById('ciEst').textContent = estudianteActual.ci || '--';
-  document.getElementById('pnfEst').textContent = estudianteActual.pnf || '--';
-  document.getElementById('ini').textContent = initials(n);
-  document.getElementById('photoPlaceholder').style.display = 'flex';
-  document.getElementById('photoError').style.display = 'none';
-  document.getElementById('btnCapture').style.display = 'none';
-  document.getElementById('postCapture').style.display = 'none';
-  document.getElementById('waitingInfo').style.display = 'flex';
+function irAPasoFoto() {
+  document.getElementById('paso-escanear').classList.remove('activo');
+  document.getElementById('paso-foto').classList.add('activo');
+  document.getElementById('paso-confirmacion').classList.remove('activo');
+  var nombre = estudianteActual.nombreCompleto || '';
+  document.getElementById('nombre-est').textContent = nombre;
+  document.getElementById('ci-est').textContent = estudianteActual.ci || '--';
+  document.getElementById('pnf-est').textContent = estudianteActual.pnf || '--';
+  document.getElementById('iniciales').textContent = iniciales(nombre);
+  document.getElementById('foto-placeholder').style.display = 'flex';
+  document.getElementById('btn-capturar').classList.add('hidden');
+  document.getElementById('controles-post').style.display = 'none';
+  document.getElementById('info-espera').style.display = 'flex';
   document.getElementById('video').classList.remove('active');
-  document.getElementById('fotoPreview').style.display = 'none';
+  document.getElementById('foto-preview').style.display = 'none';
+  document.getElementById('camara-error').style.display = 'none';
+  document.getElementById('progress2').style.width = '20%';
   fotoBase64 = null;
-  setStep(2);
-  document.getElementById('headerTitle').textContent = 'Captura';
-  document.getElementById('headerSub').textContent = 'Selfie del estudiante';
+  cambiarPaso(2);
+  document.getElementById('headerTitle').textContent = 'Captura de Foto';
+  document.getElementById('headerSub').textContent = 'Toma una selfie del estudiante';
+
+  setTimeout(function() {
+    var av = document.getElementById('iniciales');
+    av.classList.add('pulse');
+    setTimeout(function() { av.classList.remove('pulse'); }, 700);
+  }, 150);
 }
 
-function goConfirm(fecha) {
-  document.getElementById('paso1').classList.remove('active');
-  document.getElementById('paso2').classList.remove('active');
-  document.getElementById('paso3').classList.add('active');
-  document.getElementById('confNombre').textContent = estudianteActual.nombreCompleto || '--';
-  document.getElementById('confCi').textContent = estudianteActual.ci || '--';
-  document.getElementById('confPnf').textContent = estudianteActual.pnf || '--';
-  document.getElementById('confFecha').textContent = fecha;
-  setStep(3);
-  document.getElementById('headerTitle').textContent = 'Completado';
-  document.getElementById('headerSub').textContent = 'Registro guardado';
+function irAPasoConfirmacion(fechaTexto) {
+  document.getElementById('paso-escanear').classList.remove('activo');
+  document.getElementById('paso-foto').classList.remove('activo');
+  document.getElementById('paso-confirmacion').classList.add('activo');
+  document.getElementById('conf-nombre').textContent = estudianteActual.nombreCompleto || '--';
+  document.getElementById('conf-ci').textContent = estudianteActual.ci || '--';
+  document.getElementById('conf-pnf').textContent = estudianteActual.pnf || '--';
+  document.getElementById('conf-fecha').textContent = fechaTexto;
+  cambiarPaso(3);
+  document.getElementById('headerTitle').textContent = '¡Completado!';
+  document.getElementById('headerSub').textContent = 'Asistencia registrada exitosamente';
+  lanzarConfetti();
 }
 
 // ============================================================
 // TECLADO
 // ============================================================
-function openKbd() {
-  document.getElementById('vistaNormal').style.display = 'none';
-  document.getElementById('vistaTeclado').style.display = 'flex';
-  kbdVal = '';
-  updateKbd();
-  vib(15);
+function abrirTeclado() {
+  document.getElementById('vista-normal').style.display = 'none';
+  document.getElementById('vista-teclado').classList.add('activo');
+  tecladoValor = '';
+  actualizarDisplayTeclado();
+  sonidoTeclaOk();
+  vib(25);
 }
-function closeKbd() {
-  document.getElementById('vistaTeclado').style.display = 'none';
-  document.getElementById('vistaNormal').style.display = 'flex';
-  kbdVal = '';
+
+function cerrarTeclado() {
+  document.getElementById('vista-teclado').classList.remove('activo');
+  document.getElementById('vista-normal').style.display = 'flex';
+  tecladoValor = '';
 }
-function updateKbd() {
-  var d = document.getElementById('kbdDisplay');
-  var v = document.getElementById('kbdValue');
-  if (kbdVal.length === 0) {
-    v.textContent = 'Ingresa el número';
-    v.classList.remove('filled');
-    d.classList.remove('active');
+
+function actualizarDisplayTeclado() {
+  var display = document.getElementById('teclado-display');
+  var valor = document.getElementById('teclado-valor');
+  if (tecladoValor.length === 0) {
+    valor.textContent = 'Ingresa el número...';
+    valor.className = 'teclado-display-value placeholder';
+    display.classList.remove('activo');
   } else {
-    v.textContent = kbdVal;
-    v.classList.add('filled');
-    d.classList.add('active');
+    valor.textContent = tecladoValor;
+    valor.className = 'teclado-display-value tiene-datos';
+    display.classList.add('activo');
   }
-  var ok = document.querySelector('.key-ok');
-  if (ok) ok.disabled = kbdVal.length < 6;
+  var okBtn = document.querySelector('.tecla-ok');
+  if (okBtn) okBtn.disabled = tecladoValor.length < 6;
 }
-function pressKey(k) {
-  if (k === 'del') {
-    kbdVal = kbdVal.slice(0, -1);
-    beep(600, 35);
-    vib(8);
-    updateKbd();
+
+function presionarTecla(key) {
+  if (key === 'del') {
+    tecladoValor = tecladoValor.slice(0, -1);
+    sonidoTeclaDel(); vib(12);
+    actualizarDisplayTeclado();
     return;
   }
-  if (k === 'ok') {
-    if (kbdVal.length < 6) { toast('Mínimo 6 dígitos', 'err'); return; }
-    beep(1200, 70);
-    vib([30, 15, 30]);
-    var ci = kbdVal;
-    closeKbd();
-    setTimeout(function() { processCI(ci); }, 100);
+  if (key === 'ok') {
+    if (tecladoValor.length < 6) { notif('Ingresa al menos 6 dígitos', 'error'); return; }
+    sonidoTeclaOk();
+    vib([40, 30, 40]);
+    var ci = tecladoValor;
+    cerrarTeclado();
+    setTimeout(function() { procesarCI(ci); }, 200);
     return;
   }
-  if (kbdVal.length >= 11) return;
-  kbdVal += k;
-  beep(1400, 25);
-  vib(8);
-  updateKbd();
+  if (tecladoValor.length >= 11) return;
+  tecladoValor += key;
+  sonidoTecla(); vib(12);
+  actualizarDisplayTeclado();
 }
-function clearKbd() {
-  kbdVal = '';
-  beep(600, 35);
-  vib(10);
-  updateKbd();
+
+function limpiarTeclado() {
+  tecladoValor = '';
+  sonidoTeclaDel();
+  vib(15);
+  actualizarDisplayTeclado();
 }
 
 // ============================================================
-// CÁMARA FOTO (frontal forzada)
+// CÁMARA FOTO
 // ============================================================
-async function startPhotoCam() {
-  document.getElementById('photoError').style.display = 'none';
+async function iniciarCamara() {
+  document.getElementById('progress2').style.width = '40%';
+  document.getElementById('camara-error').style.display = 'none';
+
   try {
-    var cfg = {
-      video: { facingMode: { exact: 'user' }, width: { ideal: 960 }, height: { ideal: 720 } },
+    var constraints = {
+      video: { facingMode: { exact: 'user' }, width: { ideal: 1280 }, height: { ideal: 720 } },
       audio: false
     };
     try {
-      streamActual = await navigator.mediaDevices.getUserMedia(cfg);
-    } catch (e1) {
-      cfg.video.facingMode = { ideal: 'user' };
+      streamActual = await navigator.mediaDevices.getUserMedia(constraints);
+    } catch (err1) {
+      constraints.video.facingMode = { ideal: 'user' };
       try {
-        streamActual = await navigator.mediaDevices.getUserMedia(cfg);
-      } catch (e2) {
+        streamActual = await navigator.mediaDevices.getUserMedia(constraints);
+      } catch (err2) {
         streamActual = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-        toast('Usando cámara disponible', 'info');
+        notif('Usando cámara disponible', 'info');
       }
     }
-    var v = document.getElementById('video');
-    v.srcObject = streamActual;
-    v.classList.add('active');
-    document.getElementById('photoPlaceholder').style.display = 'none';
-    document.getElementById('btnCapture').style.display = 'flex';
-    document.getElementById('fotoPreview').style.display = 'none';
-    document.getElementById('waitingInfo').style.display = 'none';
+
+    var video = document.getElementById('video');
+    video.srcObject = streamActual;
+    video.classList.add('active');
+    document.getElementById('foto-placeholder').style.display = 'none';
+    document.getElementById('btn-capturar').classList.remove('hidden');
+    document.getElementById('foto-preview').style.display = 'none';
+    document.getElementById('info-espera').style.display = 'none';
+    document.getElementById('progress2').style.width = '60%';
   } catch (err) {
-    document.getElementById('photoError').style.display = 'flex';
-    document.getElementById('photoErrorMsg').textContent = 'No se pudo acceder a la cámara. ' + err.name;
+    console.error('Error cámara:', err);
+    document.getElementById('camara-error').style.display = 'flex';
+    document.getElementById('camara-error-msg').textContent = 'No se pudo acceder a la cámara. ' + err.name;
+    document.getElementById('progress2').style.width = '0%';
   }
 }
 
-async function capturePhoto() {
+async function capturarFoto() {
   if (capturando) return;
   capturando = true;
-  var v = document.getElementById('video');
-  if (!v.videoWidth) { toast('Cámara no lista', 'err'); capturando = false; return; }
 
-  document.getElementById('btnCapture').disabled = true;
-
-  // Countdown rápido (500ms por número)
-  var cd = document.getElementById('countdown');
-  if (!cd) {
-    cd = document.createElement('div');
-    cd.id = 'countdown';
-    cd.className = 'countdown';
-    v.parentElement.appendChild(cd);
+  var video = document.getElementById('video');
+  if (!video.videoWidth) {
+    notif('Cámara no lista', 'error');
+    capturando = false;
+    return;
   }
-  cd.style.display = 'flex';
+
+  document.getElementById('btn-capturar').disabled = true;
+
+  var countdown = document.getElementById('countdown');
+  var numEl = countdown.querySelector('.countdown-num');
+  countdown.classList.remove('hidden');
+
   for (var i = 3; i >= 1; i--) {
-    cd.textContent = i;
-    beep(800, 60);
-    vib(30);
-    await sleep(500);
+    numEl.textContent = i;
+    numEl.classList.remove('countdown-num');
+    void numEl.offsetWidth;
+    numEl.classList.add('countdown-num');
+    sonidoCountdown(i);
+    vib(50);
+    await sleep(800);
   }
-  cd.style.display = 'none';
 
-  sndShutter();
-  vib([40, 20, 40]);
+  countdown.classList.add('hidden');
 
-  // Comprimir imagen antes de guardar (max 800px, calidad 0.6)
-  var c = document.getElementById('canvas');
-  var p = document.getElementById('fotoPreview');
-  var maxSize = 800;
-  var scale = Math.min(1, maxSize / Math.max(v.videoWidth, v.videoHeight));
-  c.width = Math.round(v.videoWidth * scale);
-  c.height = Math.round(v.videoHeight * scale);
-  var ctx = c.getContext('2d');
-  ctx.translate(c.width, 0);
+  var flash = document.getElementById('flash');
+  flash.classList.add('fire');
+  sonidoCaptura();
+  vib([60, 30, 60]);
+
+  var canvas = document.getElementById('canvas');
+  var preview = document.getElementById('foto-preview');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  var ctx = canvas.getContext('2d');
+  ctx.translate(canvas.width, 0);
   ctx.scale(-1, 1);
-  ctx.drawImage(v, 0, 0, c.width, c.height);
-  fotoBase64 = c.toDataURL('image/jpeg', 0.6); // Calidad 0.6 = archivo más pequeño
-  p.src = fotoBase64;
-  p.style.display = 'block';
-  v.classList.remove('active');
+  ctx.drawImage(video, 0, 0);
+  fotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
+  preview.src = fotoBase64;
+  preview.style.display = 'block';
+  video.classList.remove('active');
 
-  document.getElementById('btnCapture').style.display = 'none';
-  document.getElementById('btnCapture').disabled = false;
-  document.getElementById('postCapture').style.display = 'flex';
-  stopPhotoCam();
+  setTimeout(function() { flash.classList.remove('fire'); }, 400);
+
+  document.getElementById('btn-capturar').classList.add('hidden');
+  document.getElementById('btn-capturar').disabled = false;
+  document.getElementById('controles-post').style.display = 'flex';
+  document.getElementById('progress2').style.width = '100%';
+  detenerCamaraFoto();
   capturando = false;
-
-  console.log('📸 Foto lista: ' + Math.round(fotoBase64.length / 1024) + 'KB');
 }
 
 function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
 
-function retakePhoto() {
-  document.getElementById('fotoPreview').style.display = 'none';
+function reiniciarCamara() {
+  document.getElementById('foto-preview').style.display = 'none';
   document.getElementById('video').classList.add('active');
-  document.getElementById('postCapture').style.display = 'none';
-  document.getElementById('btnCapture').style.display = 'flex';
-  document.getElementById('waitingInfo').style.display = 'none';
+  document.getElementById('controles-post').style.display = 'none';
+  document.getElementById('btn-capturar').classList.remove('hidden');
+  document.getElementById('info-espera').style.display = 'none';
+  document.getElementById('progress2').style.width = '40%';
   fotoBase64 = null;
-  startPhotoCam();
+  iniciarCamara();
 }
 
-function stopPhotoCam() {
+function detenerCamaraFoto() {
   if (streamActual) {
     streamActual.getTracks().forEach(function(t) { t.stop(); });
     streamActual = null;
@@ -1222,46 +1176,35 @@ function stopPhotoCam() {
 }
 
 // ============================================================
-// REGISTRAR (subida paralela + compresión)
+// REGISTRAR ASISTENCIA
 // ============================================================
-async function register() {
-  if (!fotoBase64) { toast('Toma la foto primero', 'err'); return; }
-  var btn = document.getElementById('btnRegister');
+async function registrarAsistencia() {
+  if (!fotoBase64) { notif('Toma una foto primero', 'error'); return; }
+
+  var btn = document.getElementById('btn-registrar');
   btn.disabled = true;
   btn.innerHTML = '<span class="loader"></span> Guardando...';
 
-  var t0 = performance.now();
-  var now = new Date();
-  var fecha = fmtDate(now);
-  var hora = now.toTimeString().substring(0, 5);
-  var fechaTxt = now.toLocaleString('es-VE', {
-    weekday: 'long', day: 'numeric', month: 'long',
+  var ahora = new Date();
+  var fecha = formatearFecha(ahora);
+  var hora = ahora.toTimeString().substring(0, 5);
+  var fechaTexto = ahora.toLocaleString('es-VE', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
     hour: '2-digit', minute: '2-digit'
   });
 
   try {
-    toast('Subiendo...', 'info');
-
-    // Preparar payloads en paralelo
-    var payloadFoto = JSON.stringify({
-      action: 'uploadPhoto',
-      imageBase64: fotoBase64,
-      ci: estudianteActual.ci
-    });
-
-    var r1 = await fetch(API_URL, {
+    notif('Subiendo foto...', 'info');
+    var resFoto = await fetch(API_URL, {
       method: 'POST',
-      body: payloadFoto,
+      body: JSON.stringify({ action: 'uploadPhoto', imageBase64: fotoBase64, ci: estudianteActual.ci }),
       headers: { 'Content-Type': 'text/plain;charset=utf-8' }
     });
-    var d1 = await r1.json();
-    if (!d1.success) throw new Error(d1.message || 'Error al subir foto');
+    var dataFoto = await resFoto.json();
+    if (!dataFoto.success) throw new Error(dataFoto.message || 'Error al subir foto');
 
-    console.log('⬆️ Foto subida en ' + Math.round(performance.now() - t0) + 'ms');
-
-    toast('Guardando...', 'info');
-
-    var r2 = await fetch(API_URL, {
+    notif('Registrando asistencia...', 'info');
+    var resAsist = await fetch(API_URL, {
       method: 'POST',
       body: JSON.stringify({
         action: 'saveAttendance',
@@ -1269,81 +1212,83 @@ async function register() {
           ci: estudianteActual.ci,
           nombre: estudianteActual.nombreCompleto,
           pnf: estudianteActual.pnf,
-          dia: now.toLocaleDateString('es-VE', { weekday: 'long' }),
+          dia: ahora.toLocaleDateString('es-VE', { weekday: 'long' }),
           fecha: fecha,
           hora: hora,
           estado: 'Presente',
-          fotoUrl: d1.url
+          fotoUrl: dataFoto.url
         }]
       }),
       headers: { 'Content-Type': 'text/plain;charset=utf-8' }
     });
-    var d2 = await r2.json();
-    if (!d2.success) throw new Error(d2.message || 'Error al guardar');
+    var dataAsist = await resAsist.json();
+    if (!dataAsist.success) throw new Error(dataAsist.message || 'Error al guardar');
 
-    console.log('⚡ Proceso total: ' + Math.round(performance.now() - t0) + 'ms');
-
-    toast('Registrado', 'ok');
-    vib([80, 40, 80, 40, 150]);
-    goConfirm(fechaTxt);
-  } catch (e) {
-    toast(e.message, 'err');
-    vib([150, 80, 150]);
+    notif('Asistencia registrada', 'exito');
+    vib([100, 50, 100, 50, 200]);
+    irAPasoConfirmacion(fechaTexto);
+  } catch (err) {
+    console.error('❌ Error:', err);
+    notif('❌ ' + err.message, 'error');
+    vib([200, 100, 200]);
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Confirmar asistencia';
+    btn.innerHTML = '✅ Confirmar Asistencia';
   }
 }
 
 // ============================================================
-// EVENTOS
+// INICIALIZACIÓN
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('btnStart').addEventListener('click', startScanner);
-  document.getElementById('btnStop').addEventListener('click', function() { stopScanner(); });
-  document.getElementById('btnRetry').addEventListener('click', startScanner);
-  document.getElementById('btnSwitchCam').addEventListener('click', switchCam);
+  console.log('🚀 Portal QR iniciado');
 
-  document.getElementById('btnOpenKbd').addEventListener('click', openKbd);
-  document.getElementById('btnCloseKbd').addEventListener('click', closeKbd);
-  document.getElementById('btnClearKbd').addEventListener('click', clearKbd);
-  document.querySelectorAll('.key').forEach(function(b) {
-    b.addEventListener('click', function() { pressKey(this.getAttribute('data-key')); });
+  document.getElementById('btn-iniciar-escaner').addEventListener('click', iniciarEscaner);
+  document.getElementById('btn-detener-escaner').addEventListener('click', function() { detenerEscaner(); });
+  document.getElementById('btn-reintentar').addEventListener('click', iniciarEscaner);
+  document.getElementById('btn-cambiar-camara').addEventListener('click', cambiarCamara);
+
+  document.getElementById('btn-abrir-teclado').addEventListener('click', abrirTeclado);
+  document.getElementById('btn-cerrar-teclado').addEventListener('click', cerrarTeclado);
+  document.getElementById('btn-limpiar-teclado').addEventListener('click', limpiarTeclado);
+  document.querySelectorAll('.tecla').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      presionarTecla(this.getAttribute('data-key'));
+    });
   });
+
   document.addEventListener('keydown', function(e) {
-    if (document.getElementById('vistaTeclado').style.display !== 'flex') return;
-    if (e.key >= '0' && e.key <= '9') { pressKey(e.key); e.preventDefault(); }
-    else if (e.key === 'Backspace') { pressKey('del'); e.preventDefault(); }
-    else if (e.key === 'Enter') { pressKey('ok'); e.preventDefault(); }
-    else if (e.key === 'Escape') { closeKbd(); e.preventDefault(); }
+    if (!document.getElementById('vista-teclado').classList.contains('activo')) return;
+    if (e.key >= '0' && e.key <= '9') { presionarTecla(e.key); e.preventDefault(); }
+    else if (e.key === 'Backspace') { presionarTecla('del'); e.preventDefault(); }
+    else if (e.key === 'Enter') { presionarTecla('ok'); e.preventDefault(); }
+    else if (e.key === 'Escape') { cerrarTeclado(); e.preventDefault(); }
   });
 
-  document.getElementById('btnStartCam').addEventListener('click', startPhotoCam);
-  document.getElementById('btnRetryCam').addEventListener('click', startPhotoCam);
-  document.getElementById('btnCapture').addEventListener('click', capturePhoto);
-  document.getElementById('btnRetake').addEventListener('click', retakePhoto);
-  document.getElementById('btnRegister').addEventListener('click', register);
+  document.getElementById('btn-encender-camara').addEventListener('click', iniciarCamara);
+  document.getElementById('btn-reintentar-camara').addEventListener('click', iniciarCamara);
+  document.getElementById('btn-capturar').addEventListener('click', capturarFoto);
+  document.getElementById('btn-repetir').addEventListener('click', reiniciarCamara);
+  document.getElementById('btn-registrar').addEventListener('click', registrarAsistencia);
 
-  document.getElementById('btnReset').addEventListener('click', function() {
-    estudianteActual = null;
-    fotoBase64 = null;
-    goScan();
+  document.getElementById('btn-reiniciar').addEventListener('click', function() {
+    estudianteActual = null; fotoBase64 = null; irAPasoEscanear();
   });
 
-  document.getElementById('tutNext').addEventListener('click', function() {
-    tutIdx++;
-    if (tutIdx >= tutSteps.length) closeTut();
-    else renderTut();
+  document.getElementById('tut-next').addEventListener('click', function() {
+    tutorialIndex++;
+    if (tutorialIndex >= tutorialSteps.length) cerrarTutorial();
+    else mostrarTutorialPaso(tutorialIndex);
   });
-  document.getElementById('tutSkip').addEventListener('click', closeTut);
+  document.getElementById('tut-skip').addEventListener('click', cerrarTutorial);
 
   window.addEventListener('orientationchange', function() {
-    if (escanerActivo) setTimeout(function() { startQRCam(); }, 300);
+    if (escanerActivo) setTimeout(function() { iniciarCamaraQR(); }, 400);
   });
 });
 
 window.addEventListener('beforeunload', function() {
-  stopPhotoCam();
+  detenerCamaraFoto();
   if (qrScanner && escanerActivo) qrScanner.stop().catch(function() {});
 });
 </script>
