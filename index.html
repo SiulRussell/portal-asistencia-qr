@@ -2,127 +2,270 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portal Asistencia QR</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f1115">
+<title>Portal de Asistencia QR</title>
+
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
-body{font-family:sans-serif;background:#0f1115;color:#e5e7eb;margin:0;padding:16px;min-height:100vh}
-.neon{color:#a3ff12}.bg-neon{background:#a3ff12}
-.btn{background:#a3ff12;color:#000;font-weight:700;padding:14px 20px;border-radius:12px;border:none;cursor:pointer;width:100%;font-size:16px;margin-top:8px}
-.btn:hover{background:#8be60f}
-.btn2{background:#1f2937;color:#e5e7eb;font-weight:600;padding:14px 20px;border-radius:12px;border:1px solid #374151;cursor:pointer;width:100%;font-size:16px;margin-top:8px}
-.card{background:#181a20;border:1px solid #1f2937;border-radius:16px;padding:20px;margin-bottom:16px}
-.hidden{display:none}
-#reader{width:100%;max-width:480px;margin:0 auto;border-radius:16px;overflow:hidden;border:2px solid #1f2937}
-#video{width:100%;max-width:400px;margin:0 auto;display:none;border-radius:20px;border:2px solid #1f2937}
-#video.active{display:block}
-#foto-preview{width:100%;max-width:400px;margin:0 auto;display:none;border-radius:20px;border:2px solid #1f2937}
-input{background:#0f1115;border:1px solid #374151;border-radius:12px;padding:12px;color:#fff;width:100%;box-sizing:border-box}
-input:focus{outline:none;border-color:#a3ff12}
-#notif{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:12px;background:#181a20;border:1px solid #1f2937;opacity:0;transition:opacity .3s;z-index:9999;text-align:center}
-#notif.visible{opacity:1}
-#notif.exito{border-color:#a3ff12}
-#notif.error{border-color:#f87171}
-.center{text-align:center}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;margin:0;padding:0;background:#0f1115;color:#e5e7eb;min-height:100vh;overflow-x:hidden}
+  .neon{color:#a3ff12}
+  .bg-neon{background:#a3ff12}
+  .fade-in{animation:fi .3s ease}
+  @keyframes fi{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .hidden{display:none!important}
+  .card{background:#181a20;border:1px solid #1f2937;border-radius:18px;padding:20px;margin-bottom:16px}
+  .btn{background:#a3ff12;color:#000;font-weight:700;padding:14px 20px;border-radius:14px;border:none;cursor:pointer;width:100%;font-size:15px;transition:all .2s;box-shadow:0 0 20px rgba(163,255,18,.2)}
+  .btn:hover:not(:disabled){background:#8be60f;transform:translateY(-1px)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn2{background:#1f2937;color:#e5e7eb;font-weight:600;padding:14px 20px;border-radius:14px;border:1px solid #374151;cursor:pointer;width:100%;font-size:15px;transition:all .2s}
+  .btn2:hover{background:#374151}
+  .btn-sm{padding:10px 16px;font-size:13px}
+  input{background:#0f1115;border:1px solid #374151;border-radius:12px;padding:13px 14px;color:#fff;width:100%;font-size:15px;transition:border-color .2s}
+  input:focus{outline:none;border-color:#a3ff12}
+  #reader{width:100%;border-radius:16px;overflow:hidden;background:#000}
+  #reader video{border-radius:16px}
+  #reader__dashboard{background:#181a20;padding:8px}
+  #video{width:100%;border-radius:20px;display:none;aspect-ratio:3/4;object-fit:cover;background:#000}
+  #video.active{display:block}
+  #foto-preview{width:100%;border-radius:20px;display:none;aspect-ratio:3/4;object-fit:cover}
+  .camera-wrap{position:relative;max-width:420px;margin:0 auto;border-radius:20px;overflow:hidden;border:2px solid #1f2937;background:#000}
+  .avatar{width:48px;height:48px;border-radius:50%;background:rgba(163,255,18,.15);border:1px solid rgba(163,255,18,.35);display:flex;align-items:center;justify-content:center;color:#a3ff12;font-weight:700;flex-shrink:0}
+  #notif{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);padding:13px 22px;border-radius:12px;background:#181a20;border:1px solid #1f2937;font-size:14px;box-shadow:0 10px 40px rgba(0,0,0,.6);opacity:0;transition:all .3s;z-index:9999;max-width:90vw;text-align:center;pointer-events:none}
+  #notif.visible{opacity:1;transform:translateX(-50%) translateY(0)}
+  #notif.exito{border-color:#a3ff12;color:#a3ff12}
+  #notif.error{border-color:#f87171;color:#f87171}
+  .loader{display:inline-block;width:16px;height:16px;border:2px solid #374151;border-top-color:#a3ff12;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .step-indicator{display:flex;justify-content:center;gap:8px;margin-bottom:20px}
+  .step-dot{width:32px;height:4px;border-radius:2px;background:#1f2937;transition:background .3s}
+  .step-dot.active{background:#a3ff12}
+  .estado-select{font-size:13px;font-weight:600;padding:6px 10px;border-radius:8px;background:#0f1115;border:1px solid #374151;color:#fff}
 </style>
 </head>
 <body>
 
 <div id="notif"></div>
 
-<div class="center" style="margin-bottom:20px">
-  <div style="display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;background:#a3ff12;color:#000;font-weight:bold;font-size:20px">QR</div>
-  <h1 style="font-size:24px;color:#fff;margin:8px 0">Registro de Asistencia</h1>
-  <p style="color:#9ca3af;font-size:14px;margin:0">Escanea el código QR del estudiante</p>
-</div>
+<div style="padding:16px;max-width:600px;margin:0 auto">
 
-<div id="paso-escanear" style="max-width:600px;margin:0 auto">
-  <div class="card">
-    <h3 style="color:#fff;margin-top:0">📷 Escáner QR</h3>
-    <div id="placeholder" class="center" style="padding:20px 0">
-      <div style="font-size:60px">📱</div>
-      <p style="color:#9ca3af;font-size:14px">Presiona para activar la cámara</p>
-      <button id="btn-iniciar-escaner" class="btn">🎥 Activar Escáner</button>
-    </div>
-    <div id="scanner-container" class="hidden">
-      <div id="reader"></div>
-      <button id="btn-detener-escaner" class="btn2">⏹️ Detener</button>
-    </div>
-    <div id="error-camara" class="hidden center" style="padding:16px 0">
-      <p id="error-camara-msg" style="color:#f87171;font-size:14px"></p>
-      <button id="btn-reintentar" class="btn2">🔄 Reintentar</button>
-    </div>
-  </div>
-  <div class="card">
-    <h3 style="color:#fff;margin-top:0;font-size:14px">⌨️ Ingreso Manual</h3>
-    <p style="color:#6b7280;font-size:12px">Ingresa la cédula del estudiante</p>
-    <div style="display:flex;gap:8px">
-      <input type="text" id="input-ci" placeholder="Ej. 12345678" inputmode="numeric">
-      <button id="btn-buscar" class="btn" style="width:auto;margin-top:0;white-space:nowrap">Buscar</button>
-    </div>
-  </div>
-</div>
+  <!-- HEADER -->
+  <header style="text-align:center;margin-bottom:20px">
+    <div style="display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;background:#a3ff12;color:#000;font-weight:800;font-size:22px;box-shadow:0 0 30px rgba(163,255,18,.4)">QR</div>
+    <h1 style="font-size:22px;font-weight:700;color:#fff;margin:10px 0 4px">Registro de Asistencia</h1>
+    <p style="color:#9ca3af;font-size:13px;margin:0">Escanea el código QR del estudiante</p>
+  </header>
 
-<div id="paso-foto" class="hidden" style="max-width:600px;margin:0 auto">
-  <div class="card">
-    <div style="display:flex;align-items:center;gap:12px">
-      <div style="width:48px;height:48px;border-radius:50%;background:rgba(163,255,18,.15);border:1px solid rgba(163,255,18,.3);display:flex;align-items:center;justify-content:center;color:#a3ff12;font-weight:bold" id="iniciales">--</div>
-      <div>
-        <p style="color:#fff;font-weight:600;margin:0" id="nombre-est">Cargando...</p>
-        <p style="color:#9ca3af;font-size:12px;margin:4px 0 0">C.I: <span id="ci-est">--</span> · <span id="pnf-est">--</span></p>
+  <!-- INDICADOR DE PASOS -->
+  <div class="step-indicator">
+    <div id="dot1" class="step-dot active"></div>
+    <div id="dot2" class="step-dot"></div>
+    <div id="dot3" class="step-dot"></div>
+  </div>
+
+  <!-- PASO 1: ESCANEO -->
+  <section id="paso-escanear" class="fade-in">
+    <div class="card">
+      <h3 style="color:#fff;font-weight:600;font-size:15px;margin:0 0 14px">📷 Escáner QR</h3>
+
+      <div id="placeholder" style="text-align:center;padding:24px 0">
+        <div style="font-size:56px;margin-bottom:12px">📱</div>
+        <p style="color:#9ca3af;font-size:13px;margin:0 0 20px">Presiona el botón para activar la cámara</p>
+        <button id="btn-iniciar-escaner" class="btn" style="max-width:280px;margin:0 auto">🎥 Activar Escáner</button>
+      </div>
+
+      <div id="scanner-container" class="hidden">
+        <div id="reader"></div>
+        <button id="btn-detener-escaner" class="btn2 btn-sm" style="margin-top:12px">⏹️ Detener Escáner</button>
+      </div>
+
+      <div id="error-camara" class="hidden" style="text-align:center;padding:16px 0">
+        <p id="error-camara-msg" style="color:#f87171;font-size:13px;margin:0 0 12px"></p>
+        <button id="btn-reintentar" class="btn2 btn-sm">🔄 Intentar de nuevo</button>
       </div>
     </div>
-  </div>
-  <div class="card">
-    <h3 style="color:#fff;margin-top:0">📸 Captura de Foto</h3>
-    <div id="camera-container" class="center">
-      <video id="video" autoplay playsinline muted></video>
-      <canvas id="canvas" style="display:none"></canvas>
-      <img id="foto-preview" alt="Preview">
-    </div>
-    <div id="foto-placeholder" class="center" style="padding:16px 0">
-      <button id="btn-encender-camara" class="btn">📷 Encender Cámara</button>
-    </div>
-    <button id="btn-capturar" class="btn hidden">📸 Tomar Foto</button>
-    <div id="controles-post" class="hidden">
-      <button id="btn-repetir" class="btn2">🔄 Repetir Foto</button>
-      <button id="btn-registrar" class="btn">✅ Registrar Asistencia</button>
-    </div>
-  </div>
-</div>
 
-<div id="paso-confirmacion" class="hidden" style="max-width:600px;margin:0 auto">
-  <div class="card center">
-    <div style="width:80px;height:80px;border-radius:50%;background:rgba(163,255,18,.15);border:2px solid rgba(163,255,18,.4);display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:36px">✅</div>
-    <h2 style="color:#fff;margin:16px 0 8px">¡Asistencia Registrada!</h2>
-    <p style="color:#9ca3af;font-size:14px;margin-bottom:20px">Los datos han sido guardados.</p>
-    <div style="background:#0f1115;border-radius:12px;padding:16px;text-align:left;margin-bottom:20px">
-      <p style="color:#9ca3af;font-size:13px;margin:6px 0">Estudiante: <span style="color:#fff" id="conf-nombre">--</span></p>
-      <p style="color:#9ca3af;font-size:13px;margin:6px 0">C.I: <span style="color:#fff" id="conf-ci">--</span></p>
-      <p style="color:#9ca3af;font-size:13px;margin:6px 0">PNF: <span style="color:#fff" id="conf-pnf">--</span></p>
-      <p style="color:#9ca3af;font-size:13px;margin:6px 0">Fecha: <span style="color:#fff" id="conf-fecha">--</span></p>
+    <div class="card">
+      <h3 style="color:#fff;font-weight:600;font-size:14px;margin:0 0 6px">⌨️ Ingreso Manual</h3>
+      <p style="color:#6b7280;font-size:12px;margin:0 0 12px">Si el QR no funciona, ingresa la cédula</p>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="input-ci" placeholder="Ej. 32469911" inputmode="numeric">
+        <button id="btn-buscar" class="btn" style="width:auto;white-space:nowrap;padding:13px 20px">Buscar</button>
+      </div>
     </div>
-    <button id="btn-reiniciar" class="btn">🔄 Escanear otro</button>
-  </div>
+  </section>
+
+  <!-- PASO 2: FOTO -->
+  <section id="paso-foto" class="hidden fade-in">
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="avatar" id="iniciales">--</div>
+        <div style="min-width:0;flex:1">
+          <p id="nombre-est" style="color:#fff;font-weight:600;font-size:15px;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">--</p>
+          <p style="color:#9ca3af;font-size:12px;margin:4px 0 0">C.I: <span id="ci-est">--</span> · <span id="pnf-est">--</span></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="color:#fff;font-weight:600;font-size:15px;margin:0 0 14px">📸 Captura de Foto</h3>
+
+      <div class="camera-wrap">
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="canvas" style="display:none"></canvas>
+        <img id="foto-preview" alt="Vista previa">
+      </div>
+
+      <div id="foto-placeholder" style="text-align:center;padding:16px 0">
+        <button id="btn-encender-camara" class="btn" style="max-width:280px;margin:0 auto">📷 Encender Cámara</button>
+      </div>
+
+      <button id="btn-capturar" class="btn hidden" style="margin-top:14px">📸 Tomar Foto</button>
+
+      <div id="controles-post" class="hidden" style="margin-top:14px">
+        <button id="btn-repetir" class="btn2" style="margin-bottom:10px">🔄 Repetir Foto</button>
+        <button id="btn-registrar" class="btn">✅ Registrar Asistencia</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PASO 3: CONFIRMACIÓN -->
+  <section id="paso-confirmacion" class="hidden fade-in">
+    <div class="card" style="text-align:center">
+      <div style="width:80px;height:80px;border-radius:50%;background:rgba(163,255,18,.15);border:2px solid rgba(163,255,18,.4);display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:38px">✅</div>
+      <h2 style="color:#fff;font-size:20px;font-weight:700;margin:16px 0 6px">¡Asistencia Registrada!</h2>
+      <p style="color:#9ca3af;font-size:13px;margin:0 0 20px">Los datos han sido guardados correctamente</p>
+
+      <div style="background:#0f1115;border-radius:14px;padding:16px;text-align:left;margin-bottom:20px">
+        <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px">
+          <span style="color:#9ca3af">Estudiante</span>
+          <span id="conf-nombre" style="color:#fff;font-weight:500;text-align:right;max-width:60%">--</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px">
+          <span style="color:#9ca3af">C.I.</span>
+          <span id="conf-ci" style="color:#fff;font-weight:500">--</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px">
+          <span style="color:#9ca3af">PNF</span>
+          <span id="conf-pnf" style="color:#fff;font-weight:500">--</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px">
+          <span style="color:#9ca3af">Fecha y hora</span>
+          <span id="conf-fecha" style="color:#a3ff12;font-weight:500">--</span>
+        </div>
+      </div>
+
+      <button id="btn-reiniciar" class="btn">🔄 Escanear otro estudiante</button>
+    </div>
+  </section>
+
 </div>
 
 <script>
-var API_URL = 'https://script.google.com/macros/s/AKfycbxCL6N_g58t6SzamCFzRz0XGrKdOtxntRfHsEtR9DLTSRFZL_QBSXTHgzySbHzePIam/exec';
-var html5QrCode = null;
-var stream = null;
+// ============================================================
+// CONFIGURACIÓN
+// ============================================================
+var API_URL = 'https://script.google.com/macros/s/AKfycbxs9lJS5ooh78lksVGgx15QfblWOis5HwNgx1cT78JMwQxWTevqZss4EhTzAcCBtIVj/exec';
+
+// ============================================================
+// ESTADO
+// ============================================================
+var qrScanner = null;
+var streamActual = null;
 var fotoBase64 = null;
-var estudiante = null;
+var estudianteActual = null;
 var escaneando = false;
 var escanerActivo = false;
 
+// ============================================================
+// UTILIDADES
+// ============================================================
 function notif(msg, tipo) {
   var n = document.getElementById('notif');
   n.textContent = msg;
   n.className = 'visible' + (tipo ? ' ' + tipo : '');
   clearTimeout(n._t);
   n._t = setTimeout(function() { n.className = ''; }, 4000);
+}
+
+function limpiarCI(valor) {
+  return String(valor || '').replace(/\D/g, '');
+}
+
+function iniciales(nombre) {
+  return String(nombre || '').split(' ').filter(function(w) { return w.length > 0; })
+    .slice(0, 2).map(function(w) { return w[0]; }).join('').toUpperCase();
+}
+
+function formatearFecha(d) {
+  var p = function(n) { return String(n).padStart(2, '0'); };
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+}
+
+function cambiarPaso(n) {
+  ['dot1', 'dot2', 'dot3'].forEach(function(id, i) {
+    document.getElementById(id).classList.toggle('active', i === n - 1);
+  });
+}
+
+// ============================================================
+// PASO 1: ESCÁNER QR
+// ============================================================
+async function iniciarEscaner() {
+  document.getElementById('placeholder').classList.add('hidden');
+  document.getElementById('error-camara').classList.add('hidden');
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    mostrarErrorCamara('Tu navegador no soporta acceso a la cámara. Usa el ingreso manual.');
+    return;
+  }
+
+  document.getElementById('scanner-container').classList.remove('hidden');
+
+  try {
+    qrScanner = new Html5Qrcode('reader');
+    await qrScanner.start(
+      { facingMode: 'environment' },
+      { fps: 10, qrbox: { width: 240, height: 240 } },
+      function(texto) {
+        if (escaneando) return;
+        escaneando = true;
+        if (navigator.vibrate) navigator.vibrate(100);
+        detenerEscaner(true).then(function() { procesarCI(texto); });
+      },
+      function() {}
+    );
+    escanerActivo = true;
+    console.log('✅ Escáner QR iniciado');
+  } catch (err) {
+    console.error('Error escáner:', err);
+    escanerActivo = false;
+    var msg = 'No se pudo acceder a la cámara. ';
+    if (err.name === 'NotAllowedError') msg += 'Permiso denegado. Revisa los permisos del navegador.';
+    else if (err.name === 'NotFoundError') msg += 'No se encontró ninguna cámara.';
+    else if (err.name === 'NotReadableError') msg += 'La cámara está en uso por otra app.';
+    else msg += err.toString();
+    mostrarErrorCamara(msg);
+  }
+}
+
+async function detenerEscaner(mantener) {
+  if (qrScanner && escanerActivo) {
+    try {
+      await qrScanner.stop();
+      await qrScanner.clear();
+    } catch(e) {}
+    qrScanner = null;
+    escanerActivo = false;
+  }
+  if (!mantener) {
+    document.getElementById('scanner-container').classList.add('hidden');
+    document.getElementById('placeholder').classList.remove('hidden');
+  }
 }
 
 function mostrarErrorCamara(msg) {
@@ -132,82 +275,34 @@ function mostrarErrorCamara(msg) {
   document.getElementById('error-camara-msg').textContent = msg;
 }
 
-async function iniciarEscaner() {
-  document.getElementById('placeholder').classList.add('hidden');
-  document.getElementById('error-camara').classList.add('hidden');
-
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    mostrarErrorCamara('Navegador no soporta cámara.');
-    return;
-  }
-
-  document.getElementById('scanner-container').classList.remove('hidden');
-
-  try {
-    html5QrCode = new Html5Qrcode("reader");
-    await html5QrCode.start(
-      { facingMode: "environment" },
-      { fps: 10, qrbox: { width: 240, height: 240 } },
-      function(decodedText) {
-        if (escaneando) return;
-        escaneando = true;
-        if (navigator.vibrate) navigator.vibrate(100);
-        detenerEscaner(true).then(function() { procesarCI(decodedText); });
-      },
-      function() {}
-    );
-    escanerActivo = true;
-    console.log('Escáner iniciado');
-  } catch (error) {
-    console.error('Error escáner:', error);
-    escanerActivo = false;
-    var msg = 'No se pudo acceder a la cámara. ';
-    if (error.name === 'NotAllowedError') msg += 'Permiso denegado.';
-    else if (error.name === 'NotFoundError') msg += 'No se encontró cámara.';
-    else msg += error.toString();
-    mostrarErrorCamara(msg);
-  }
-}
-
-async function detenerEscaner(mantener) {
-  if (html5QrCode && escanerActivo) {
-    try {
-      await html5QrCode.stop();
-      await html5QrCode.clear();
-    } catch(e) {}
-    html5QrCode = null;
-    escanerActivo = false;
-  }
-  if (!mantener) {
-    document.getElementById('scanner-container').classList.add('hidden');
-    document.getElementById('placeholder').classList.remove('hidden');
-  }
-}
-
+// ============================================================
+// BUSCAR ESTUDIANTE
+// ============================================================
 async function procesarCI(texto) {
-  if (!texto) return;
-  var ci = String(texto).replace(/\D/g, '');
-  if (!ci || ci.length < 4) {
-    notif('Código inválido', 'error');
+  if (!texto) { escaneando = false; return; }
+  var ci = limpiarCI(texto);
+  if (!ci || ci.length < 6) {
+    notif('Código inválido. Intenta de nuevo.', 'error');
     escaneando = false;
     return;
   }
-  console.log('Buscando CI:', ci);
+
+  console.log('🔍 Buscando CI:', ci);
   notif('Buscando estudiante...');
 
   try {
     var res = await fetch(API_URL + '?action=getStudents');
     var estudiantes = await res.json();
-    console.log('Recibidos:', estudiantes.length);
+    console.log('📋 Estudiantes recibidos:', estudiantes.length);
 
     if (!Array.isArray(estudiantes) || estudiantes.length === 0) {
-      notif('No hay estudiantes en la base', 'error');
+      notif('No hay estudiantes en la base de datos', 'error');
       escaneando = false;
       return;
     }
 
     var est = estudiantes.find(function(e) {
-      return String(e.ci).replace(/\D/g, '') === ci;
+      return limpiarCI(e.ci) === ci || String(e.ciNormalizado) === ci;
     });
 
     if (!est) {
@@ -216,15 +311,18 @@ async function procesarCI(texto) {
       return;
     }
 
-    estudiante = est;
+    estudianteActual = est;
     irAPasoFoto();
-  } catch (error) {
-    console.error('Error:', error);
-    notif('Error de conexión', 'error');
+  } catch (err) {
+    console.error('Error fetch:', err);
+    notif('Error al consultar la base de datos', 'error');
     escaneando = false;
   }
 }
 
+// ============================================================
+// NAVEGACIÓN ENTRE PASOS
+// ============================================================
 function irAPasoEscanear() {
   document.getElementById('paso-escanear').classList.remove('hidden');
   document.getElementById('paso-foto').classList.add('hidden');
@@ -237,6 +335,8 @@ function irAPasoEscanear() {
   escanerActivo = false;
   detenerCamaraFoto();
   detenerEscaner();
+  cambiarPaso(1);
+  window.scrollTo(0, 0);
 }
 
 function irAPasoFoto() {
@@ -244,11 +344,11 @@ function irAPasoFoto() {
   document.getElementById('paso-foto').classList.remove('hidden');
   document.getElementById('paso-confirmacion').classList.add('hidden');
 
-  var nombre = estudiante.nombreCompleto || '';
+  var nombre = estudianteActual.nombreCompleto || '';
   document.getElementById('nombre-est').textContent = nombre;
-  document.getElementById('ci-est').textContent = estudiante.ci || '--';
-  document.getElementById('pnf-est').textContent = estudiante.pnf || '--';
-  document.getElementById('iniciales').textContent = nombre.split(' ').map(function(n) { return n[0]; }).join('').substring(0, 2).toUpperCase();
+  document.getElementById('ci-est').textContent = estudianteActual.ci || '--';
+  document.getElementById('pnf-est').textContent = estudianteActual.pnf || '--';
+  document.getElementById('iniciales').textContent = iniciales(nombre);
 
   document.getElementById('foto-placeholder').classList.remove('hidden');
   document.getElementById('btn-capturar').classList.add('hidden');
@@ -256,6 +356,8 @@ function irAPasoFoto() {
   document.getElementById('video').classList.remove('active');
   document.getElementById('foto-preview').style.display = 'none';
   fotoBase64 = null;
+
+  cambiarPaso(2);
   window.scrollTo(0, 0);
 }
 
@@ -263,28 +365,38 @@ function irAPasoConfirmacion(fechaTexto) {
   document.getElementById('paso-escanear').classList.add('hidden');
   document.getElementById('paso-foto').classList.add('hidden');
   document.getElementById('paso-confirmacion').classList.remove('hidden');
-  document.getElementById('conf-nombre').textContent = estudiante.nombreCompleto || '--';
-  document.getElementById('conf-ci').textContent = estudiante.ci || '--';
-  document.getElementById('conf-pnf').textContent = estudiante.pnf || '--';
+
+  document.getElementById('conf-nombre').textContent = estudianteActual.nombreCompleto || '--';
+  document.getElementById('conf-ci').textContent = estudianteActual.ci || '--';
+  document.getElementById('conf-pnf').textContent = estudianteActual.pnf || '--';
   document.getElementById('conf-fecha').textContent = fechaTexto;
+
+  cambiarPaso(3);
   window.scrollTo(0, 0);
 }
 
+// ============================================================
+// PASO 2: CÁMARA
+// ============================================================
 async function iniciarCamara() {
   try {
-    stream = await navigator.mediaDevices.getUserMedia({
+    streamActual = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 960 } },
       audio: false
     });
     var video = document.getElementById('video');
-    video.srcObject = stream;
+    video.srcObject = streamActual;
     video.classList.add('active');
     document.getElementById('foto-placeholder').classList.add('hidden');
     document.getElementById('btn-capturar').classList.remove('hidden');
     document.getElementById('foto-preview').style.display = 'none';
-  } catch (error) {
-    console.error('Error cámara:', error);
-    notif('Error: ' + error.name, 'error');
+  } catch (err) {
+    console.error('Error cámara foto:', err);
+    var msg = 'No se pudo acceder a la cámara. ';
+    if (err.name === 'NotAllowedError') msg += 'Permiso denegado.';
+    else if (err.name === 'NotFoundError') msg += 'No se encontró cámara.';
+    else msg += err.name;
+    notif(msg, 'error');
   }
 }
 
@@ -294,7 +406,7 @@ function capturarFoto() {
   var preview = document.getElementById('foto-preview');
 
   if (!video.videoWidth) {
-    notif('Cámara no lista', 'error');
+    notif('La cámara aún no está lista', 'error');
     return;
   }
 
@@ -323,50 +435,58 @@ function reiniciarCamara() {
 }
 
 function detenerCamaraFoto() {
-  if (stream) {
-    stream.getTracks().forEach(function(t) { t.stop(); });
-    stream = null;
+  if (streamActual) {
+    streamActual.getTracks().forEach(function(t) { t.stop(); });
+    streamActual = null;
   }
 }
 
-function formatearFecha(d) {
-  var pad = function(n) { return String(n).padStart(2, '0'); };
-  return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
-}
-
+// ============================================================
+// REGISTRAR ASISTENCIA
+// ============================================================
 async function registrarAsistencia() {
   if (!fotoBase64) {
     notif('Toma una foto primero', 'error');
     return;
   }
+
   var btn = document.getElementById('btn-registrar');
   btn.disabled = true;
-  btn.textContent = 'Registrando...';
+  btn.innerHTML = '<span class="loader"></span> Registrando...';
 
   var ahora = new Date();
   var fecha = formatearFecha(ahora);
   var hora = ahora.toTimeString().substring(0, 5);
-  var fechaTexto = ahora.toLocaleString('es-VE');
+  var fechaTexto = ahora.toLocaleString('es-VE', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
 
   try {
-    notif('Subiendo foto...');
+    // 1. Subir foto
+    notif('📤 Subiendo foto...');
     var resFoto = await fetch(API_URL, {
       method: 'POST',
-      body: JSON.stringify({ action: 'uploadPhoto', imageBase64: fotoBase64, ci: estudiante.ci }),
+      body: JSON.stringify({
+        action: 'uploadPhoto',
+        imageBase64: fotoBase64,
+        ci: estudianteActual.ci
+      }),
       headers: { 'Content-Type': 'text/plain;charset=utf-8' }
     });
     var dataFoto = await resFoto.json();
-    if (!dataFoto.success) throw new Error('Foto: ' + dataFoto.message);
+    if (!dataFoto.success) throw new Error(dataFoto.message || 'Error al subir foto');
 
-    notif('Guardando asistencia...');
+    // 2. Guardar asistencia
+    notif('📝 Guardando asistencia...');
     var resAsist = await fetch(API_URL, {
       method: 'POST',
       body: JSON.stringify({
         action: 'saveAttendance',
         registros: [{
-          ci: estudiante.ci,
-          nombre: estudiante.nombreCompleto,
-          pnf: estudiante.pnf,
+          ci: estudianteActual.ci,
+          nombre: estudianteActual.nombreCompleto,
+          pnf: estudianteActual.pnf,
           dia: ahora.toLocaleDateString('es-VE', { weekday: 'long' }),
           fecha: fecha,
           hora: hora,
@@ -377,45 +497,63 @@ async function registrarAsistencia() {
       headers: { 'Content-Type': 'text/plain;charset=utf-8' }
     });
     var dataAsist = await resAsist.json();
-    if (!dataAsist.success) throw new Error('Asistencia: ' + dataAsist.message);
+    if (!dataAsist.success) throw new Error(dataAsist.message || 'Error al guardar asistencia');
 
-    notif('Asistencia registrada', 'exito');
+    // 3. Éxito
+    notif('✅ Asistencia registrada', 'exito');
     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
     irAPasoConfirmacion(fechaTexto);
-  } catch (error) {
-    console.error(error);
-    notif('Error: ' + error.message, 'error');
+
+  } catch (err) {
+    console.error('Error registro:', err);
+    notif('❌ ' + err.message, 'error');
   } finally {
     btn.disabled = false;
-    btn.textContent = '✅ Registrar Asistencia';
+    btn.innerHTML = '✅ Registrar Asistencia';
   }
 }
 
-// EVENT LISTENERS (se ejecutan cuando el DOM está listo)
+// ============================================================
+// INICIALIZACIÓN
+// ============================================================
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('Portal QR iniciado. API:', API_URL);
+  console.log('🚀 Portal QR iniciado');
+  console.log('📡 API:', API_URL);
 
+  // Verificar conexión con la API
+  fetch(API_URL + '?action=ping')
+    .then(function(r) { return r.json(); })
+    .then(function(d) { console.log('✅ API OK:', d.message || 'activa'); })
+    .catch(function(e) { console.error('❌ API no responde:', e); });
+
+  // Event listeners
   document.getElementById('btn-iniciar-escaner').addEventListener('click', iniciarEscaner);
   document.getElementById('btn-detener-escaner').addEventListener('click', function() { detenerEscaner(); });
   document.getElementById('btn-reintentar').addEventListener('click', iniciarEscaner);
+
   document.getElementById('btn-buscar').addEventListener('click', function() {
     procesarCI(document.getElementById('input-ci').value);
   });
+  document.getElementById('input-ci').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') procesarCI(this.value);
+  });
+
   document.getElementById('btn-encender-camara').addEventListener('click', iniciarCamara);
   document.getElementById('btn-capturar').addEventListener('click', capturarFoto);
   document.getElementById('btn-repetir').addEventListener('click', reiniciarCamara);
   document.getElementById('btn-registrar').addEventListener('click', registrarAsistencia);
+
   document.getElementById('btn-reiniciar').addEventListener('click', function() {
-    estudiante = null;
+    estudianteActual = null;
     fotoBase64 = null;
     irAPasoEscanear();
   });
+});
 
-  // Verificar API
-  fetch(API_URL + '?action=ping')
-    .then(function(r) { return r.json(); })
-    .then(function(d) { console.log('API OK:', d); })
-    .catch(function(e) { console.error('API error:', e); });
+// Detener cámaras al salir
+window.addEventListener('beforeunload', function() {
+  detenerCamaraFoto();
+  if (qrScanner && escanerActivo) qrScanner.stop().catch(function() {});
 });
 </script>
 </body>
